@@ -2,12 +2,8 @@
 
 # include <stdio.h>
 # include "funcioneskernel.c"
-int main(){
-	
-	/* c�digo principal de ejecuci�n */
-	comprobarCatalogo();
-	comprobarCarritos();
-	comprobarClientes();
+int main(){	
+	// Comprobamos que estén creados los archivos necesarios para la ejecución
 	comprobarCatalogo();
 	comprobarCarritos();
 	comprobarClientes();
