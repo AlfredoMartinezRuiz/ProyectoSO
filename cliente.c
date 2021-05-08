@@ -1,9 +1,10 @@
 /* Programa principal del cliente*/ 
 
 # include <stdio.h>
+
 int main(){
 	
-	/* código principal de ejecución */
+	/* cï¿½digo principal de ejecuciï¿½n */
 	
 	return 0;
 }
