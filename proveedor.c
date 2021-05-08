@@ -1,9 +1,10 @@
 /* Programa principal del proveedor*/ 
 
 # include <stdio.h>
+# include "funcioneskernel.c"
 int main(){
 	
-	/* código principal de ejecución */
-	
+	/* cï¿½digo principal de ejecuciï¿½n */
+	funcionProveedor();
 	return 0;
 }
