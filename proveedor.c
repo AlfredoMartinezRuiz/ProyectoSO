@@ -18,7 +18,7 @@ void listado()
         printf("%d , %s , %d , %0.2f\n", producto.id_producto, producto.nombre_producto, producto.cantidad, producto.precio);
         fread(&producto, sizeof(PRODUCTO), 1, catalogo);
     }
-    fclose(arch);
+    fclose(catalogo);
     
 }
 
