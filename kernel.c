@@ -7,6 +7,8 @@ int main(){
 	comprobarCatalogo();
 	comprobarCarritos();
 	comprobarClientes();
-	
+	agregarCliente();
+	agregarCliente();
+	leerCliente();
 	return 0;
 }
