@@ -377,7 +377,7 @@ int obtenerNuevoIDcliente(){ // Obtenemos algun id disponible para un nuevo clie
 
 
 int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos un cliente 
-    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo de clientes
         return -1; // error, no existe
     }
      else{
@@ -402,7 +402,7 @@ int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos u
             return 0;
         }
         else{
-            return -2; // error, catálogo ocupado
+            return -2; // error, archivo ocupado
         }        
     }
 }
