@@ -22,19 +22,23 @@ void main(){
 			int cantidad;
 			float precio;
 			system("clear");
-			printf("Por favor, indique el nombre del articulo: \n");
-			scanf("%c", &aux);
-			fgets(nombre, 30, stdin);		
-			printf("Por favor, indique la cantidad del articulo: \n");
+			printf("Agregar articulo\n");
+			printf("Nombre del articulo: \n");
+			scanf("%d", &op);
+			fgets(nombre, 30, stdin);	
+			printf("Stock: \n");
 			scanf("%d", &cantidad);
-			printf("Por favor, indique su precio del articulo: \n");
+			printf("Precio por unidad: \n");
 			scanf("%f", &precio);
+			
 			int resultado_operacion;
 			do{
 				resultado_operacion = agregarArticulo(nombre, cantidad, precio); // Comprueba que se ejecute correctamente
 				//printf("%d \n", resultado_operacion);
 			}while(resultado_operacion < 0);
 
+					
+			
 			break;
 		case 3:
 			break;
