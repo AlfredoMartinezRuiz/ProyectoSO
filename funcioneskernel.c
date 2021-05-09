@@ -104,76 +104,61 @@ void comprobarClientes(){
 }
 
 int obtenerNuevoID(){ // Obtenemos algun id disponible para un nuevo producto
-	FILE *catalogo = fopen("catalogo.txt", "r");
-    	char *aux;
-    	char *c_aux=(char*)malloc(sizeof(char)*50);
+	FILE *catalogo = fopen("catalogo.bin", "rb");
     	int id;
-    	char comp;
-    	aux = fgets(c_aux, 50, catalogo);
+    	/* Creamos un producto*/
+        PRODUCTO prod;
+    	fread(&prod, sizeof(PRODUCTO), 1, catalogo);
     	int i=0;
-    	while(aux != NULL){
-	    	id = strtol((c_aux+1), &c_aux, 10); //Obtiene lo que no sea caracter 
-	    					     //se pone c_aux+1 por el espacio que se tiene al principio
-    		if(id != i){
-	    		fclose(catalogo);
+    	while(!feof(catalogo)){ // Recorremos cada estructura del archivo
+    	 	id = prod.id_producto;
+            
+             	if(id != i){
+		    	fclose(catalogo);
 			return id;
-		}
-		aux = fgets(c_aux, 50, catalogo);
-			//id es el que leo del archivo
-		i++; //contador con el que se compara
-			
-    	}
-    	fclose(catalogo);
+            	}
+            	fread(&prod, sizeof(PRODUCTO), 1, catalogo);
+            	i++;
+        }
+        fclose(catalogo);
     	return i; //SI van en orden regresa el id que le sigue
 	
 }
+  
 
 int agregarArticulo(char *nombre, int cantidad, float precio){ // Agregamos un articulo al catalogo
-    FILE *catalogo;
-    if(fopen("catalogo.txt", "r") == NULL){ // Comprueba si no existe el archivo del catálogo
-        return -1; // error, no existe
-    }
-    else{
-        key_t llave_cat = ftok("catalogos", 1);
-        int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
-        if(semctl(semcat, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
-            semctl(semcat, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
-            
-            /* Creamos toda la cadena para el archivo */
-            char id[3];
-            //char *nomb = (char*)malloc(sizeof(char)*30);
-            char cant[20];
-            char prec[20];
-
-            int nuevo_id = obtenerNuevoID(); // Obtenemos un id libre para darselo al producto
-            float nuevo_precio = precio + precio*IVA + precio*GANANCIA;       
-            sprintf(id, "%d", nuevo_id); // Convertimos para poder escribirlo en el archivo
-            sprintf(cant, "%d", cantidad);
-            sprintf(prec, "%0.2f", nuevo_precio);
-            //repararCadena(nombre, nomb);
-            
-            // Copiando el contenido a una cadena para escribirla en el archivo
-            char nuevo[200];
-            strcat(nuevo, id);
-            strcat(nuevo, "-");
-            strcat(nuevo, nombre);
-            strcat(nuevo, "-");
-            strcat(nuevo, cant);
-            strcat(nuevo, "-");
-            strcat(nuevo, prec);
-            strcat(nuevo, "\n");
-            
-            FILE *catalogo = fopen("catalogo.txt", "a");
-            fputs(nuevo, catalogo); // Escribe el nuevo artículo en la list
-            fclose(catalogo);
-            semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
-            return 0;
-        }
-        else{
-            return -2; // error, catálogo ocupado
-        }        
-    }
+	FILE *catalogo;
+	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+		return -1; // error, no existe
+	}
+	else{
+		key_t llave_cat = ftok("catalogos", 1);
+		int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
+		if(semctl(semcat, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
+			semctl(semcat, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
+		    
+			/* Creamos un producto*/
+			PRODUCTO prod;
+			
+			FILE *catalogo = fopen("catalogo.bin", "ab");  
+			prod.id_producto = obtenerNuevoID(); // Obtenemos un id libre para darselo al producto
+			
+			/*Asignamos los valores a la estructura*/
+			strcpy(prod.nombre_producto, nombre);
+			prod.cantidad = cantidad;
+			prod.precio = precio;   
+			
+			fwrite(&prod, sizeof(PRODUCTO), 1, catalogo); //escribimos la estructura
+			fclose(catalogo);
+			semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
+			return 0;
+		}
+		else{
+		    return -2; // error, catálogo ocupado
+		}        
+	}
 }
+
 
 int buscarporNombre(char *nombre){ // Buscamos el id de un articulo por medio de su nombre exacto
     FILE *catalogo;
@@ -196,41 +181,46 @@ int buscarporNombre(char *nombre){ // Buscamos el id de un articulo por medio de
 }
 
 int agregarCantidad(int id, int cantidad){ // Agregamos la cantidad dada por el proveedor al articulo con el id dado por el mismo
-    FILE *catalogo;
-    if(fopen("catalogo.txt", "r") == NULL){ // Comprueba si no existe el archivo del catálogo
-        return -1; // error, no existe
-    }
-     else{
-        key_t llave_cat = ftok("catalogos", 1);
-        int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
-        if(semctl(semcat, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
-            semctl(semcat, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
+	FILE *catalogo;
+	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+		return -1; // error, no existe
+	}
+	else{
+		key_t llave_cat = ftok("catalogos", 1);
+		int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
+		if(semctl(semcat, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
+			semctl(semcat, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
 
-            FILE *catalogo = fopen("catalogo.txt", "r+");
-            char *aux;
-            char c_aux[50]; // Guardará cada linea del archivo de manera temporal
-            int indice = 0;
-            aux = fgets(c_aux, 50, catalogo);
-
-            while(aux != NULL){
-                if(indice == 3){                    
-                    fputs("hola jaja", catalogo);
-                }
-                indice++;
-                aux = fgets(c_aux, 50, catalogo);
-                
-            }
-            fclose(catalogo);  
-            
-
-            semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
-            return 0;
-        }
-        else{
-            return -2; // error, catálogo ocupado
-        }        
-    }
+			FILE *catalogo = fopen("catalogo.bin", "r+b");
+			/* Creamos un producto*/
+			PRODUCTO prod;
+			int existe = 0; //bandera para saber si existe el producto
+			fread(&prod, sizeof(PRODUCTO), 1, catalogo);
+			while(!feof(catalogo)){
+				if(id == prod.id_producto){
+					prod.cantidad = prod.cantidad+cantidad; //aumentamos la cantidad
+					//printf("cantNuev: %d\n", prod.cantidad);
+					int pos=ftell(catalogo)-sizeof(PRODUCTO); //actualiza el puntero
+					fseek(catalogo,pos,SEEK_SET);
+					fwrite(&prod, sizeof(PRODUCTO), 1, catalogo); //escribimos la estructura modificada
+					existe=1;
+           				break;
+				}
+				fread(&prod, sizeof(PRODUCTO), 1, catalogo);
+			}
+			fclose(catalogo); 
+			
+			semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
+			if(existe==0)
+				return -3;
+			return 0;				
+		}
+		else{
+			return -2; // error, catálogo ocupado
+		}        
+	}
 }
+
 
 float consultarPrecio(int id){ // consultamos el precio de un producto por medio de su id
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
