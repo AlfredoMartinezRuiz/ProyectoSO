@@ -93,20 +93,7 @@ int obtenerNuevoID(){
     return id;
 }
 
-void repararCadena(char nombre_ant[30], char *nombre){
-    int longitud = sizeof(nombre);
-    char aux[30];
-    for(int i = 0; i < 30; i++){
-        if(i == longitud+2){
-            aux[i] = '\0';
-            break;
-        }
-        aux[i] = nombre_ant[i];        
-    }
-    strcpy(nombre, aux);
-}
-
-int agregarArticulo(char nombre[30], int cantidad, float precio){
+int agregarArticulo(char *nombre, int cantidad, float precio){
     FILE *catalogo;
     if(fopen("catalogo.txt", "r") == NULL){ // Comprueba si no existe el archivo del catálogo
         return -1; // error, no existe
@@ -128,18 +115,17 @@ int agregarArticulo(char nombre[30], int cantidad, float precio){
             sprintf(id, "%d", nuevo_id); // Convertimos para poder escribirlo en el archivo
             sprintf(cant, "%d", cantidad);
             sprintf(prec, "%0.2f", nuevo_precio);
-            repararCadena(nombre, nomb);
             
             // Copiando el contenido a una cadena para escribirla en el archivo
             char nuevo[200];
             strcat(nuevo, id);
             strcat(nuevo, "-");
-            strcat(nuevo, nomb);
+            strcat(nuevo, nombre);
             strcat(nuevo, "-");
             strcat(nuevo, cant);
             strcat(nuevo, "-");
             strcat(nuevo, prec);
-
+            strcat(nuevo, "\n");
             
             FILE *catalogo = fopen("catalogo.txt", "a");
             fputs(nuevo, catalogo);

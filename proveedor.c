@@ -18,20 +18,22 @@ void main(){
 		case 1:			
 			break;
 		case 2: ;// Agregar artículo nuevo
-			char nombre[30];
+			char *nombre = (char*)malloc(sizeof(char)*30);
 			int cantidad;
 			float precio;
 			system("clear");
 			printf("Agregar articulo\n");
 			printf("Nombre del articulo: \n");
 			scanf("%d", &op);
-			fgets(nombre, 30, stdin);	
+			fgets(nombre, 30, stdin);
+			strtok(nombre, "\n");
 			printf("Stock: \n");
 			scanf("%d", &cantidad);
 			printf("Precio por unidad: \n");
 			scanf("%f", &precio);
 			
 			int resultado_operacion;
+			
 			do{
 				resultado_operacion = agregarArticulo(nombre, cantidad, precio); // Comprueba que se ejecute correctamente
 				//printf("%d \n", resultado_operacion);
