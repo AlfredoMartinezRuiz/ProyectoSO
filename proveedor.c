@@ -29,6 +29,10 @@ void main(){
 			printf("Por favor, indice su precio del articulo: \n");
 			scanf("%d", &precio);
 			
+			if(agregarArticulo() == -1){ // Si no procede
+				printf("Hubo un error, intentando de nuevo... \n");
+				sleep(1);
+			}
 			break;
 		case 3:
 			break;

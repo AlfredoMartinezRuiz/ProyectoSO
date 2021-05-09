@@ -48,6 +48,7 @@ void comprobarCatalogo(){
     }*/
 
 }
+
 void comprobarCarritos(){
     /* Comprobamos primero la existencia del carritos */
     FILE *carritos;
@@ -72,4 +73,8 @@ void comprobarClientes(){
     /* Comprobamos después la existencia del semáforo del catálogo */
     key_t llave_cli = ftok("clientes", 1);
     int semcli = semget(llave_cli, 1, IPC_CREAT|PERMISOS);
+}
+
+int agregarArticulo(){
+    return -1;
 }
