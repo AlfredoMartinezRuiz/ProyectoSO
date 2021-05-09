@@ -79,7 +79,7 @@ void comprobarClientes(){
     int semcli = semget(llave_cli, 1, IPC_CREAT|PERMISOS);
 }
 
-int obtenerNuevoID(){
+/*int obtenerNuevoID(){
     FILE *catalogo = fopen("catalogo.txt", "r");
     char *aux;
     char c_aux[50];
@@ -91,6 +91,31 @@ int obtenerNuevoID(){
     }
     fclose(catalogo);
     return id;
+}*/
+
+int obtenerNuevoID(){
+	FILE *catalogo = fopen("catalogo.txt", "r");
+    	char *aux;
+    	char *c_aux=(char*)malloc(sizeof(char)*50);
+    	int id;
+    	char comp;
+    	aux = fgets(c_aux, 50, catalogo);
+    	int i=0;
+    	while(aux != NULL){
+	    	id = strtol((c_aux+1), &c_aux, 10); //Obtiene lo que no sea caracter 
+	    					     //se pone c_aux+1 por el espacio que se tiene al principio
+    		if(id != i){
+	    		fclose(catalogo);
+			return id;
+		}
+		aux = fgets(c_aux, 50, catalogo);
+			//id es el que leo del archivo
+		i++; //contador con el que se compara
+			
+    	}
+    	fclose(catalogo);
+    	return i; //SI van en orden regresa el id que le sigue
+	
 }
 
 void repararCadena(char nombre_ant[30], char *nombre){
@@ -119,7 +144,7 @@ int agregarArticulo(char nombre[30], int cantidad, float precio){
             
             /* Creamos toda la cadena para el archivo */
             char id[3];
-            char *nomb = (char*)malloc(sizeof(char)*30);
+            //char *nomb = (char*)malloc(sizeof(char)*30);
             char cant[20];
             char prec[20];
 
@@ -128,17 +153,18 @@ int agregarArticulo(char nombre[30], int cantidad, float precio){
             sprintf(id, "%d", nuevo_id); // Convertimos para poder escribirlo en el archivo
             sprintf(cant, "%d", cantidad);
             sprintf(prec, "%0.2f", nuevo_precio);
-            repararCadena(nombre, nomb);
+            //repararCadena(nombre, nomb);
             
             // Copiando el contenido a una cadena para escribirla en el archivo
             char nuevo[200];
             strcat(nuevo, id);
             strcat(nuevo, "-");
-            strcat(nuevo, nomb);
+            strcat(nuevo, nombre);
             strcat(nuevo, "-");
             strcat(nuevo, cant);
             strcat(nuevo, "-");
             strcat(nuevo, prec);
+            strcat(nuevo, "\n");
 
             
             FILE *catalogo = fopen("catalogo.txt", "a");
