@@ -60,10 +60,12 @@ void iniciarSesion(){
 	strtok(contrasena, "\n");
 
 	if(comprobarCredenciales(email, contrasena)  == -2){
-		printf("Correo no encontrado \n");
+		printf("\nCorreo no encontrado \n");
+		sleep(2);
 	}
 	else if(comprobarCredenciales(email, contrasena)  == -3){
-		printf("Contraseña incorrecta \n");
+		printf("\nContraseña incorrecta \n");
+		sleep(2);
 	}
 	else{
 		do{
@@ -112,6 +114,7 @@ void iniciarSesion(){
 			}
 		}while (op != 5);
 		}
+	system("clear");
 }
 
 void registrarUsuario(){
@@ -165,8 +168,8 @@ void main(){
 				getc(stdin);
 				break;
 			case 2: //iniciar sesion
-				iniciarSesion();
 				system("clear");
+				iniciarSesion();
 				break;
 			case 3: //Registrar nuevo usuario
 				system("clear");
