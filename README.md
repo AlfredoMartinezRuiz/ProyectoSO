@@ -1,4 +1,4 @@
-# Practica-7
+# Proyecto SO
 https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html
 https://invisible-island.net/ncurses/man/ncurses.3x.html#h3-Datatypes 
 http://index-of.co.uk/Programming/ncurses.pdf
