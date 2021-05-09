@@ -125,7 +125,6 @@ int obtenerNuevoID(){ // Obtenemos algun id disponible para un nuevo producto
     	}
     	fclose(catalogo);
     	return i; //SI van en orden regresa el id que le sigue
-	
 }
 
 int agregarArticulo(char *nombre, int cantidad, float precio){ // Agregamos un articulo al catalogo
@@ -355,7 +354,32 @@ int obtenerProductos(PRODUCTO *p){ // Almacenamos todos los productos en la list
     }
 }
 
-int agregarCliente(int id, char *nombre, char *email,  char *contrasena){ // Agregamos un cliente 
+int obtenerNuevoIDcliente(){ // Obtenemos algun id disponible para un nuevo cliente
+	FILE *clientes = fopen("clientes.bin", "rb");
+    	char *aux;
+    	char *c_aux=(char*)malloc(sizeof(char)*50);
+    	int id;
+    	char comp;
+    	aux = fgets(c_aux, 50, clientes);
+    	int i=0;
+    	while(aux != NULL){
+	    	id = strtol((c_aux+1), &c_aux, 10); //Obtiene lo que no sea caracter 
+	    					     //se pone c_aux+1 por el espacio que se tiene al principio
+    		if(id != i){
+	    		fclose(clientes);
+			return id;
+		}
+		aux = fgets(c_aux, 50, clientes);
+			//id es el que leo del archivo
+		i++; //contador con el que se compara
+			
+    	}
+    	fclose(clientes);
+    	return i; //SI van en orden regresa el id que le sigue
+}
+
+
+int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos un cliente 
     if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
         return -1; // error, no existe
     }
@@ -367,7 +391,7 @@ int agregarCliente(int id, char *nombre, char *email,  char *contrasena){ // Agr
 
             /* Creamos un cliente*/
             CLIENTE cli;
-            cli.id_cliente = id;
+            cli.id_cliente = obtenerNuevoIDcliente();
             strcpy(cli.nombre_cliente, nombre);
             strcpy(cli.contrasena, contrasena);
             strcpy(cli.email, email);
