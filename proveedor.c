@@ -21,12 +21,13 @@ void main(){
 			int cantidad;
 			int precio;
 			system("clear");
-			printf("Por favor, indice el nombre del articulo: \n");
+			printf("Agregar articulo\n");
+			printf("Nombre del articulo: \n");
 			scanf("%d", &op);
 			fgets(nombre, 20, stdin);		
-			printf("Por favor, indice la cantidad del articulo: \n");
+			printf("Stock: \n");
 			scanf("%d", &cantidad);
-			printf("Por favor, indice su precio del articulo: \n");
+			printf("Precio por unidad: \n");
 			scanf("%d", &precio);
 			
 			break;
