@@ -3,6 +3,26 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include "funcioneskernel.c"
+
+
+void listado()
+{
+    FILE *catalogo;
+    catalogo=fopen("catalogo.bin","rb");
+    if (catalogo==NULL)
+        exit(1);
+    PRODUCTO producto;
+    fread(&producto, sizeof(PRODUCTO), 1, catalogo);
+    while(!feof(catalogo))
+    {
+        printf("%d , %s , %d , %0.2f\n", producto.id_producto, producto.nombre_producto, producto.cantidad, producto.precio);
+        fread(&producto, sizeof(PRODUCTO), 1, catalogo);
+    }
+    fclose(catalogo);
+    
+}
+
+
 void main(){
 	int op;
 	char aux;
@@ -12,7 +32,8 @@ void main(){
 		printf("1. Agregar existencia.\n");
 		printf("2. Agregar articulo.\n");
 		printf("3. Buscar articulo por nombre.\n");
-		printf("4. Salir.\n");
+		printf("4. Ver productos.\n");
+		printf("5. Salir.\n");
 		scanf("%d", &op);
 		
 		int resultado_operacion;
@@ -23,15 +44,17 @@ void main(){
 			int indice_archivo;
 
 			system("clear");
-			printf("Agregar articulo\n");	
+			printf("Agregar existencia\n");	
 			
 			printf("Cantidad a aumentar: \n");
-			scanf("%d", &id);
+			scanf("%d", &cantidad_aumentada);
 			do{
 				printf("ID del articulo: \n");
 				scanf("%d", &id);
 
 				resultado_operacion = agregarCantidad(id, cantidad_aumentada); // Comprueba que se ejecute correctamente
+				//printf("res: %d \n", resultado_operacion);
+				//sleep(1);
 				if(resultado_operacion == -3){
 					printf("Error: Producto no encontrado, intente de nuevo\n");
 				}
@@ -63,6 +86,7 @@ void main(){
 			do{
 				resultado_operacion = agregarArticulo(nombre, cantidad, precio); // Comprueba que se ejecute correctamente
 				//printf("%d \n", resultado_operacion);
+				sleep(3);
 			}while(resultado_operacion < 0);					
 			printf("Operacion exitosa!\n");
 			printf("Volviendo al menu...\n");
@@ -74,11 +98,13 @@ void main(){
 			system("clear");
 			printf("Buscar articulo\n");	
 
-			printf("Nombre exacto del articulo (mayusculas y minusculas): \n");
-			scanf("%d", &op);
-			fgets(nombre_buscar, 30, stdin);
-			strtok(nombre_buscar, "\n");
+			
 			do{
+				printf("Nombre exacto del articulo (mayusculas y minusculas): \n");
+				scanf("%d", &op);
+				fgets(nombre_buscar, 30, stdin);
+				strtok(nombre_buscar, "\n");
+				
 				resultado_operacion = buscarporNombre(nombre_buscar); // Comprueba que se ejecute correctamente y guarda el id para mostrarlo
 				if(resultado_operacion == -3){
 					printf("ID no encontrado, verifique el nombre. \n");
@@ -91,8 +117,14 @@ void main(){
 			printf("Presione una tecla para volver al menu\n");
 			getchar();
 			break;
+		
+		case 4:; //Ver articulos
+			//mostrarProductos();
+			listado();
+			sleep(2);
+			break;
 		}
-	}while (op != 4);
+	}while (op != 5);
 	
 	
 }
