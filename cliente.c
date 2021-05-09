@@ -143,7 +143,9 @@ void registrarUsuario(){
 		printf("%d \n", res);
 		sleep(1);
 	}while(res < 0);	
-	printf("Registro existoso!");
+	printf("\n- Registro existoso -\n");
+	sleep(2);
+	system("clear");
 }
 
 void main(){
@@ -168,6 +170,7 @@ void main(){
 				system("clear");
 				break;
 			case 3: //Registrar nuevo usuario
+				system("clear");
 				registrarUsuario();
 				break;
 		}

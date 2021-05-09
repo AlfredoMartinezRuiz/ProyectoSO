@@ -408,7 +408,7 @@ int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos u
             return 0;
         }
         else{
-            return -2; // error, catálogo ocupado
+            return -2; // error, archivo ocupado
         }        
     }
 }
