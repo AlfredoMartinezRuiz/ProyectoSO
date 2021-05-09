@@ -18,9 +18,18 @@
 struct cliente{
     int id_cliente;
     char *nombre_cliente;
+    char *email;
     char *contrasena;
 };
 typedef struct cliente CLIENTE;
+
+struct producto{
+    int id_producto;
+    char *nombre_producto;
+    int cantidad;
+    float precio;
+};
+typedef struct producto PRODUCTO;
 
 
 void comprobarCatalogo(){
@@ -88,17 +97,28 @@ void comprobarClientes(){
 }
 
 int obtenerNuevoID(){
-    FILE *catalogo = fopen("catalogo.txt", "r");
-    char *aux;
-    char c_aux[50];
-    int id = 0;
-    aux = fgets(c_aux, 50, catalogo);
-    while(aux != NULL){
-        aux = fgets(c_aux, 50, catalogo);
-        id++;
-    }
-    fclose(catalogo);
-    return id;
+	FILE *catalogo = fopen("catalogo.txt", "r");
+    	char *aux;
+    	char *c_aux=(char*)malloc(sizeof(char)*50);
+    	int id;
+    	char comp;
+    	aux = fgets(c_aux, 50, catalogo);
+    	int i=0;
+    	while(aux != NULL){
+	    	id = strtol((c_aux+1), &c_aux, 10); //Obtiene lo que no sea caracter 
+	    					     //se pone c_aux+1 por el espacio que se tiene al principio
+    		if(id != i){
+	    		fclose(catalogo);
+			return id;
+		}
+		aux = fgets(c_aux, 50, catalogo);
+			//id es el que leo del archivo
+		i++; //contador con el que se compara
+			
+    	}
+    	fclose(catalogo);
+    	return i; //SI van en orden regresa el id que le sigue
+	
 }
 
 int agregarArticulo(char *nombre, int cantidad, float precio){
@@ -114,6 +134,7 @@ int agregarArticulo(char *nombre, int cantidad, float precio){
             
             /* Creamos toda la cadena para el archivo */
             char id[3];
+            //char *nomb = (char*)malloc(sizeof(char)*30);
             char cant[20];
             char prec[20];
 
@@ -122,6 +143,7 @@ int agregarArticulo(char *nombre, int cantidad, float precio){
             sprintf(id, "%d", nuevo_id); // Convertimos para poder escribirlo en el archivo
             sprintf(cant, "%d", cantidad);
             sprintf(prec, "%0.2f", nuevo_precio);
+            //repararCadena(nombre, nomb);
             
             // Copiando el contenido a una cadena para escribirla en el archivo
             char nuevo[200];
@@ -240,6 +262,7 @@ int agregarCliente(){
             cl1.contrasena = "Lola";
             cl1.id_cliente = 0;
             cl1.nombre_cliente = "Juan Pablo II";
+            cl1.email = "Juanpablo@gmail.com"
 
             
             FILE *clientes = fopen("catalogo.txt", "ab");
@@ -255,7 +278,7 @@ int agregarCliente(){
     }
 }
 
-int leerCliente(){
+int leerCliente(char *nombre){
     FILE *cliente;
     if(fopen("clientes.bin", "r") == NULL){ // Comprueba si no existe el archivo del catálogo
         return -1; // error, no existe
@@ -267,8 +290,7 @@ int leerCliente(){
         FILE *clientes = fopen("catalogo.txt", "ab");
         fread(&cl1, sizeof(CLIENTE), 1, clientes);
         fclose(clientes);
-        printf("%i, %s, %s", cl1.id_cliente, cl1.contrasena, cl1.nombre_cliente);
-        return 0;
-             
+        printf("%i, %s, %s, %s", cl1.id_cliente, cl1.contrasena, cl1.nombre_cliente, cl1.email);
+        return 0;             
     }
 }
