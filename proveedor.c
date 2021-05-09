@@ -24,27 +24,23 @@ void main(){
 
 			system("clear");
 			printf("Agregar articulo\n");	
-
-			printf("ID del articulo: \n");
+			
+			printf("Cantidad a aumentar: \n");
 			scanf("%d", &id);
-			indice_archivo = buscarporID(id); // Solicitamos el indice para saber en que linea del archivo buscar
-			if(indice_archivo >= 0){
-				printf("Cantidad a aumentar: \n");
+			do{
+				printf("ID del articulo: \n");
 				scanf("%d", &id);
 
-				do{
-					resultado_operacion = agregarCantidad(id, cantidad_aumentada, indice_archivo); // Comprueba que se ejecute correctamente
-					//printf("%d \n", resultado_operacion);
-				}while(resultado_operacion < 0);
-				printf("Operacion exitosa!\n");
-				printf("Volviendo al menu...\n");
-				sleep(1);
-			}
-			else{
-				printf("Articulo no encontrado, verifique su ID\n");
-			}
-			
+				resultado_operacion = agregarCantidad(id, cantidad_aumentada); // Comprueba que se ejecute correctamente
+				if(resultado_operacion == -3){
+					printf("Error: Producto no encontrado, intente de nuevo\n");
+				}
+			}while(resultado_operacion < 0);
+			printf("Operacion exitosa!\n");
+			printf("Volviendo al menu...\n");
+			sleep(1);			
 			break;
+
 		case 2: ;// Agregar artículo nuevo
 			char *nombre = (char*)malloc(sizeof(char)*30);
 			int cantidad;
@@ -70,9 +66,9 @@ void main(){
 			}while(resultado_operacion < 0);					
 			printf("Operacion exitosa!\n");
 			printf("Volviendo al menu...\n");
-			sleep(1);
-			
+			sleep(1);			
 			break;
+
 		case 3:; // Buscar articulo por nombre
 			char *nombre_buscar= (char*)malloc(sizeof(char)*30);
 			system("clear");
@@ -94,7 +90,6 @@ void main(){
 			}while(resultado_operacion < 0);
 			printf("Presione una tecla para volver al menu\n");
 			getchar();
-
 			break;
 		}
 	}while (op != 4);
