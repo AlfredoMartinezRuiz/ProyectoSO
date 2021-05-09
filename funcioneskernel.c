@@ -115,7 +115,7 @@ int obtenerNuevoID(){ // Obtenemos algun id disponible para un nuevo producto
             
              	if(id != i){
 		    	fclose(catalogo);
-			return id;
+			return id; //id es el que se lee
             	}
             	fread(&prod, sizeof(PRODUCTO), 1, catalogo);
             	i++;
@@ -161,25 +161,32 @@ int agregarArticulo(char *nombre, int cantidad, float precio){ // Agregamos un a
 
 
 int buscarporNombre(char *nombre){ // Buscamos el id de un articulo por medio de su nombre exacto
-    FILE *catalogo;
-    if(fopen("catalogo.txt", "r") == NULL){ // Comprueba si no existe el archivo del catálogo
-        return -1; // error, no existe
-    }
-     else{
-        FILE *catalogo = fopen("catalogo.txt", "r+");
-        char *aux;
-        char c_aux[50]; // Guardará cada linea del archivo de manera temporal
-        aux = fgets(c_aux, 50, catalogo);
-
-        while(aux != NULL){                
-            aux = fgets(c_aux, 50, catalogo);                
-        }
-        fclose(catalogo);  
-
-        return 0;      
-    }
+	FILE *catalogo;
+	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+		return -1; // error, no existe
+	}
+	else{
+		FILE *catalogo = fopen("catalogo.bin", "rb");
+		/* Creamos un producto*/
+		PRODUCTO prod;
+		int existe = 0;
+		fread(&prod, sizeof(PRODUCTO), 1, catalogo);
+		
+		while(!feof(catalogo)){
+			if(strcmp(nombre, prod.nombre_producto)==0){
+				int id = prod.id_producto;
+				existe=1;
+				return id; 
+				
+			}
+			fread(&prod, sizeof(PRODUCTO), 1, catalogo);
+		}
+		fclose(catalogo);
+		if(existe==0)
+			return -3; 
+		return 0;      
+	}
 }
-
 int agregarCantidad(int id, int cantidad){ // Agregamos la cantidad dada por el proveedor al articulo con el id dado por el mismo
 	FILE *catalogo;
 	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo

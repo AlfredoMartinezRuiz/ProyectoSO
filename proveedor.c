@@ -18,7 +18,7 @@ void listado()
         printf("%d , %s , %d , %0.2f\n", producto.id_producto, producto.nombre_producto, producto.cantidad, producto.precio);
         fread(&producto, sizeof(PRODUCTO), 1, catalogo);
     }
-    fclose(arch);
+    fclose(catalogo);
     
 }
 
@@ -98,11 +98,13 @@ void main(){
 			system("clear");
 			printf("Buscar articulo\n");	
 
-			printf("Nombre exacto del articulo (mayusculas y minusculas): \n");
-			scanf("%d", &op);
-			fgets(nombre_buscar, 30, stdin);
-			strtok(nombre_buscar, "\n");
+			
 			do{
+				printf("Nombre exacto del articulo (mayusculas y minusculas): \n");
+				scanf("%d", &op);
+				fgets(nombre_buscar, 30, stdin);
+				strtok(nombre_buscar, "\n");
+				
 				resultado_operacion = buscarporNombre(nombre_buscar); // Comprueba que se ejecute correctamente y guarda el id para mostrarlo
 				if(resultado_operacion == -3){
 					printf("ID no encontrado, verifique el nombre. \n");
