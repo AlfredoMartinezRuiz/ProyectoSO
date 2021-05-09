@@ -5,6 +5,7 @@
 # include "funcioneskernel.c"
 void main(){
 	int op;
+	char aux;
 	do{
 		printf("Bienvenido! \nQue desea hacer?\n");
 		printf("1. Agregar existencia.\n");
@@ -17,22 +18,23 @@ void main(){
 		case 1:			
 			break;
 		case 2: ;// Agregar artículo nuevo
-			char nombre[20];
+			char nombre[30];
 			int cantidad;
-			int precio;
+			float precio;
 			system("clear");
-			printf("Por favor, indice el nombre del articulo: \n");
-			scanf("%d", &op);
-			fgets(nombre, 20, stdin);		
-			printf("Por favor, indice la cantidad del articulo: \n");
+			printf("Por favor, indique el nombre del articulo: \n");
+			scanf("%c", &aux);
+			fgets(nombre, 30, stdin);		
+			printf("Por favor, indique la cantidad del articulo: \n");
 			scanf("%d", &cantidad);
-			printf("Por favor, indice su precio del articulo: \n");
-			scanf("%d", &precio);
-			
-			if(agregarArticulo() == -1){ // Si no procede
-				printf("Hubo un error, intentando de nuevo... \n");
-				sleep(1);
-			}
+			printf("Por favor, indique su precio del articulo: \n");
+			scanf("%f", &precio);
+			int resultado_operacion;
+			do{
+				resultado_operacion = agregarArticulo(nombre, cantidad, precio); // Comprueba que se ejecute correctamente
+				//printf("%d \n", resultado_operacion);
+			}while(resultado_operacion < 0);
+
 			break;
 		case 3:
 			break;

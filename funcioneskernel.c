@@ -1,14 +1,18 @@
 /* Funciones a las que acceden el cliente y proveedor para interactuar con los recursos */
 /* Programa principal del kernel*/ 
 
-# include<stdio.h>
-# include<stdlib.h>
-# include<unistd.h>
-# include<wait.h>
-# include<sys/ipc.h>
-# include<sys/shm.h>
-# include<sys/sem.h>
-# include<sys/types.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <wait.h>
+# include <sys/ipc.h>
+# include <sys/shm.h>
+# include <sys/sem.h>
+# include <sys/types.h>
+# include <string.h>
+
+# define IVA 0.16
+# define GANANCIA 0.10
 
 # define PERMISOS 0644
 void comprobarCatalogo(){
@@ -22,7 +26,7 @@ void comprobarCatalogo(){
     /* Comprobamos después la existencia del semáforo del catálogo */
     key_t llave_cat = ftok("catalogos", 1);
     int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
-    
+    semctl(semcat, 0, SETVAL, 1);
 
 /*
     if(i == 1){        
@@ -75,6 +79,76 @@ void comprobarClientes(){
     int semcli = semget(llave_cli, 1, IPC_CREAT|PERMISOS);
 }
 
-int agregarArticulo(){
-    return -1;
+int obtenerNuevoID(){
+    FILE *catalogo = fopen("catalogo.txt", "r");
+    char *aux;
+    char c_aux[50];
+    int id = 0;
+    aux = fgets(c_aux, 50, catalogo);
+    while(aux != NULL){
+        aux = fgets(c_aux, 50, catalogo);
+        id++;
+    }
+    fclose(catalogo);
+    return id;
+}
+
+void repararCadena(char nombre_ant[30], char *nombre){
+    int longitud = sizeof(nombre);
+    char aux[30];
+    for(int i = 0; i < 30; i++){
+        if(i == longitud+2){
+            aux[i] = '\0';
+            break;
+        }
+        aux[i] = nombre_ant[i];        
+    }
+    strcpy(nombre, aux);
+}
+
+int agregarArticulo(char nombre[30], int cantidad, float precio){
+    FILE *catalogo;
+    if(fopen("catalogo.txt", "r") == NULL){ // Comprueba si no existe el archivo del catálogo
+        return -1; // error, no existe
+    }
+    else{
+        key_t llave_cat = ftok("catalogos", 1);
+        int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
+        if(semctl(semcat, 0, GETVAL, 0) > 0){ // Es decir, si está desocupado
+            semctl(semcat, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
+            
+            /* Creamos toda la cadena para el archivo */
+            char id[3];
+            char *nomb = (char*)malloc(sizeof(char)*30);
+            char cant[20];
+            char prec[20];
+
+            int nuevo_id = obtenerNuevoID();     
+            float nuevo_precio = precio + precio*IVA + precio*GANANCIA;       
+            sprintf(id, "%d", nuevo_id); // Convertimos para poder escribirlo en el archivo
+            sprintf(cant, "%d", cantidad);
+            sprintf(prec, "%0.2f", nuevo_precio);
+            repararCadena(nombre, nomb);
+            
+            // Copiando el contenido a una cadena para escribirla en el archivo
+            char nuevo[200];
+            strcat(nuevo, id);
+            strcat(nuevo, "-");
+            strcat(nuevo, nomb);
+            strcat(nuevo, "-");
+            strcat(nuevo, cant);
+            strcat(nuevo, "-");
+            strcat(nuevo, prec);
+
+            
+            FILE *catalogo = fopen("catalogo.txt", "a");
+            fputs(nuevo, catalogo);
+            fclose(catalogo);
+            semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
+            return 0;
+        }
+        else{
+            return -2; // error, catálogo ocupado
+        }        
+    }
 }
