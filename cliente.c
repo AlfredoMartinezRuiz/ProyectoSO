@@ -42,18 +42,19 @@ void mostrarProductos(){
 	}
 }
 
-void main(){
+void iniciarSesion(){
 	int op;
 	char aux;
 	char *email = (char*)malloc(sizeof(char)*30);
 	char *contrasena = (char*)malloc(sizeof(char)*30);
 
-	printf("Ingrese su correo: ");
+	printf("Identifícate\n\n");
+	printf("E-MAIL: ");
 	scanf("%d", &op);
 	fgets(email, 30, stdin);
 	strtok(email, "\n");
 
-	printf("Ingrese su contraseña: ");
+	printf("Contraseña: ");
 	scanf("%d", &op);
 	fgets(contrasena, 30, stdin);
 	strtok(contrasena, "\n");
@@ -62,56 +63,114 @@ void main(){
 		printf("Correo no encontrado \n");
 	}
 	else if(comprobarCredenciales(email, contrasena)  == -3){
-		printf("Contrasna incorrecta \n");
+		printf("Contraseña incorrecta \n");
 	}
 	else{
 		do{
-		system("clear");
-		printf("Bienvenido! \nQue desea hacer?\n");
-		printf("1. Ver productos.\n");
-		printf("2. Agregar a carrito\n");
-		printf("3. Ver carrito.\n");
-		printf("4. Pagar carrito.\n");
-		printf("5. Salir.\n");
+			system("clear");
+			printf("¡Hola! \nQue desea hacer?\n");
+			printf("1. Ver productos.\n");
+			printf("2. Agregar a carrito\n");
+			printf("3. Ver carrito.\n");
+			printf("4. Pagar carrito.\n");
+			printf("5. Salir.\n");
+			scanf("%d", &op);
+
+			int resultado_operacion;
+			int id;
+			switch (op){ 
+			case 1:;	// Mostrar todos los productos
+				mostrarProductos();
+				printf("Presione una tecla para continuar\n\n");
+				getc(stdin);
+				break;
+
+			case 2: ; // Agregar articulo a carrito
+				int cantidad;
+				mostrarProductos();
+				printf("Ingresa el ID del articulo\n");
+				scanf("%d", &id);
+				printf("Ingresa la cantidad del articulo\n");
+				scanf("%d", &cantidad);
+				do{
+					resultado_operacion = agregarACarrito(email, id, cantidad); // Comprobemos que no haya ningun error en la operacion
+					if(resultado_operacion == -5){
+						printf("Error: Producto no encontrado, o no hay stock \n");
+					}
+				}while(resultado_operacion < 0);
+				printf("Operacion exitosa!\n");
+				printf("Volviendo al menu...\n");
+				sleep(1);			
+				break;
+
+			case 3:; // Ver el carrito completo
+				
+				break;
+			case 4:; // Pagar carrito
+				
+				break;
+			}
+		}while (op != 5);
+		}
+}
+
+void registrarUsuario(){
+	//agregarCliente(1, "Juan Pablo II", "Juanpablo@gmail.com", "Lola");
+	int op,res;
+	char *email = (char*)malloc(sizeof(char)*30);
+	char *contrasena = (char*)malloc(sizeof(char)*30);
+	char *nombre = (char*)malloc(sizeof(char)*30);
+
+	printf("Cliente Nuevo de QuickBuy\n");
+
+	printf("Nombre: ");
+	scanf("%d", &op);
+	fgets(nombre, 30, stdin);
+	strtok(nombre, "\n");
+
+	printf("E-mail: ");
+	scanf("%d", &op);
+	fgets(email, 30, stdin);
+	strtok(email, "\n");
+
+	printf("Contraseña: ");
+	scanf("%d", &op);
+	fgets(contrasena, 30, stdin);
+	strtok(contrasena, "\n");
+
+	do{
+		res = agregarCliente(nombre,email,contrasena); // Comprueba que se ejecute correctamente
+		//printf("%d \n", res);
+	}while(res < 0);	
+	printf("Registro existoso!");
+}
+
+void main(){
+	int op;
+
+	do{
+		printf("¡Bienvenido a QuickBuy!\n");
+		printf("1. Ver productos\n");
+		printf("2. Iniciar sesión\n");
+		printf("3. Registrarse\n");
+		printf("4. Salir\n");
 		scanf("%d", &op);
 
-		int resultado_operacion;
-		int id;
-		switch (op){ 
-		case 1:;	// Mostrar todos los productos
-			mostrarProductos();
-			printf("Presione una tecla para continuar\n\n");
-    		getc(stdin);
-			break;
-
-		case 2: ; // Agregar articulo a carrito
-			int cantidad;
-			mostrarProductos();
-			printf("Ingresa el ID del articulo\n");
-			scanf("%d", &id);
-			printf("Ingresa la cantidad del articulo\n");
-			scanf("%d", &cantidad);
-			do{
-				resultado_operacion = agregarACarrito(email, id, cantidad); // Comprobemos que no haya ningun error en la operacion
-				if(resultado_operacion == -5){
-					printf("Error: Producto no encontrado, o no hay stock \n");
-				}
-			}while(resultado_operacion < 0);
-			printf("Operacion exitosa!\n");
-			printf("Volviendo al menu...\n");
-			sleep(1);			
-			break;
-
-		case 3:; // Ver el carrito completo
-			
-			break;
-		case 4:; // Pagar carrito
-			
-			break;
+		switch(op){
+			case 1: //Muestra todos los productos
+				mostrarProductos();
+				printf("Presione una tecla para continuar\n\n");
+				getc(stdin);
+				break;
+			case 2: //iniciar sesion
+				iniciarSesion();
+				system("clear");
+				break;
+			case 3: //Registrar nuevo usuario
+				registrarUsuario();
+				break;
 		}
-	}while (op != 5);
-	}
-	
-	
+		
+	}while(op != 4);
 	
 }
