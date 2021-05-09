@@ -563,4 +563,3 @@ int pagarCarrito(char *email){ // Vaciamos el carrito porque ya "se hizo" el pag
         }        
     }
 }
-
