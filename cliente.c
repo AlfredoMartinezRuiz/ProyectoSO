@@ -140,7 +140,8 @@ void registrarUsuario(){
 
 	do{
 		res = agregarCliente(nombre,email,contrasena); // Comprueba que se ejecute correctamente
-		//printf("%d \n", res);
+		printf("%d \n", res);
+		sleep(1);
 	}while(res < 0);	
 	printf("Registro existoso!");
 }
