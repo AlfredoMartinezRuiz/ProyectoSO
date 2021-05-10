@@ -4,6 +4,7 @@
 # include <stdlib.h>
 # include "funcioneskernel.c"
 
+
 void mostrarProductos(){
 	PRODUCTO productos[100]; 
 	obtenerProductos(productos);
@@ -60,12 +61,10 @@ void iniciarSesion(){
 	strtok(contrasena, "\n");
 
 	if(comprobarCredenciales(email, contrasena)  == -2){
-		printf("\nCorreo no encontrado \n");
-		sleep(2);
+		printf("Correo no encontrado \n");
 	}
 	else if(comprobarCredenciales(email, contrasena)  == -3){
-		printf("\nContraseña incorrecta \n");
-		sleep(2);
+		printf("Contraseña incorrecta \n");
 	}
 	else{
 		do{
@@ -114,7 +113,6 @@ void iniciarSesion(){
 			}
 		}while (op != 5);
 		}
-	system("clear");
 }
 
 void registrarUsuario(){
@@ -143,12 +141,9 @@ void registrarUsuario(){
 
 	do{
 		res = agregarCliente(nombre,email,contrasena); // Comprueba que se ejecute correctamente
-		printf("%d \n", res);
-		sleep(1);
+		//printf("%d \n", res);
 	}while(res < 0);	
-	printf("\n- Registro existoso -\n");
-	sleep(2);
-	system("clear");
+	printf("Registro existoso!");
 }
 
 void main(){
@@ -164,16 +159,16 @@ void main(){
 
 		switch(op){
 			case 1: //Muestra todos los productos
-				mostrarProductos();
-				printf("Presione una tecla para continuar\n\n");
-				getc(stdin);
+			//	mostrarProductos();
+				listado();
+				//printf("Presione una tecla para continuar\n\n");
+				//getc(stdin);
 				break;
 			case 2: //iniciar sesion
-				system("clear");
 				iniciarSesion();
+				system("clear");
 				break;
 			case 3: //Registrar nuevo usuario
-				system("clear");
 				registrarUsuario();
 				break;
 		}
