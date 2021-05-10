@@ -377,7 +377,7 @@ int obtenerNuevoIDcliente(){ // Obtenemos algun id disponible para un nuevo clie
 
 
 int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos un cliente 
-    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo
         return -1; // error, no existe
     }
      else{
