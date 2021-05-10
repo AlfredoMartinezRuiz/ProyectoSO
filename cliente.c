@@ -88,16 +88,20 @@ void iniciarSesion(){
 
 			case 2: ; // Agregar articulo a carrito
 				int cantidad;
-				mostrarProductos();
+				/*mostrarProductos();
 				printf("Ingresa el ID del articulo\n");
 				scanf("%d", &id);
 				printf("Ingresa la cantidad del articulo\n");
-				scanf("%d", &cantidad);
+				scanf("%d", &cantidad);*/
+				id = 0;
+				cantidad = 2;
 				do{
 					resultado_operacion = agregarACarrito(email, id, cantidad); // Comprobemos que no haya ningun error en la operacion
 					if(resultado_operacion == -5){
 						printf("Error: Producto no encontrado, o no hay stock \n");
 					}
+					printf("gola %d\n", resultado_operacion);
+					sleep(1);
 				}while(resultado_operacion < 0);
 				printf("Operacion exitosa!\n");
 				printf("Volviendo al menu...\n");

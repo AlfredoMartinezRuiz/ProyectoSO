@@ -81,7 +81,7 @@ void comprobarCarritos(){
     /* Comprobamos primero la existencia del carritos */
     FILE *carritos;
     if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo de carritos
-        carritos = fopen("carritos.txt", "wb"); // Creamos el archivo si no existe
+        carritos = fopen("carritos.bin", "wb"); // Creamos el archivo si no existe
         fclose(carritos);
     }
 
@@ -246,7 +246,7 @@ float consultarPrecio(int id){ // consultamos el precio de un producto por medio
             fread(&prod, sizeof(PRODUCTO), 1, catalogo);
         }
         fclose(catalogo);        
-        return -3; // ID no encontrado      
+        return -14; // ID no encontrado      
     }
 }
 
@@ -269,7 +269,7 @@ int consultarNombre(int id, char *nombre){ // Consultamos el nombre de un produc
             fread(&prod, sizeof(PRODUCTO), 1, catalogo);
         }
         fclose(catalogo);        
-        return -3; // ID no encontrado      
+        return -13; // ID no encontrado      
     }
 }
 
@@ -291,7 +291,7 @@ int consultarDisponibilidad(int id){ // Consultamos la cantidad disponible de un
             fread(&prod, sizeof(PRODUCTO), 1, catalogo);
         }
         fclose(catalogo);        
-        return -3; // ID no encontrado      
+        return -12; // ID no encontrado      
     }
 }
 
@@ -314,16 +314,18 @@ int descontarDeStock(int id, int cantidad){ // Descontamos la cantidad añadida 
             while(!feof(catalogo)){ // Recorremos cada estructura del archivo
                 if(prod.id_producto == id){ // checamos que coincida con el ID
                     prod.cantidad = prod.cantidad - cantidad; // Descontamos la cantidad que se agregó al carrito 
-                    fclose(catalogo);        
+                    fclose(catalogo); 
+                    semctl(semcat, 0, SETVAL, 1); // asignamos a 0 para decir que está ocupado       
                     return 0;
                 }
                 fread(&prod, sizeof(PRODUCTO), 1, catalogo);
             }
             fclose(catalogo);        
+            semctl(semcat, 0, SETVAL, 1); // asignamos a 0 para decir que está ocupado
             return -3; // ID no encontrado
         }
         else{
-            return -2; // error, catálogo ocupado
+            return -11; // error, catálogo ocupado
         }        
     }
 }
@@ -378,6 +380,7 @@ int obtenerNuevoIDcliente(){ // Obtenemos algun id disponible para un nuevo clie
 
 int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos un cliente 
     if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+        comprobarClientes();
         return -1; // error, no existe
     }
      else{
@@ -507,7 +510,7 @@ int agregarACarrito(char *email, int id, int cantidad){ // Agregamos un producto
                 }
                 fclose(carritos);      
                 semctl(semcar, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
-                return -2; // Correo no encontrado  
+                return -10; // Correo no encontrado  
             }
             else{ // Hubo algún error y lo notificamos
                 semctl(semcar, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
