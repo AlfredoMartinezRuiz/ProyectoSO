@@ -5,24 +5,6 @@
 # include "funcioneskernel.c"
 
 
-void listado()
-{
-    FILE *catalogo;
-    catalogo=fopen("catalogo.bin","rb");
-    if (catalogo==NULL)
-        exit(1);
-    PRODUCTO producto;
-    fread(&producto, sizeof(PRODUCTO), 1, catalogo);
-    while(!feof(catalogo))
-    {
-        printf("%d , %s , %d , %0.2f\n", producto.id_producto, producto.nombre_producto, producto.cantidad, producto.precio);
-        fread(&producto, sizeof(PRODUCTO), 1, catalogo);
-    }
-    fclose(catalogo);
-    
-}
-
-
 void main(){
 	int op;
 	char aux;
@@ -111,6 +93,7 @@ void main(){
 				}
 				else{
 					printf("ID de %s es: %d \n", nombre_buscar, resultado_operacion);
+					
 				}
 				//printf("%d \n", resultado_operacion);
 			}while(resultado_operacion < 0);

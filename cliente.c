@@ -4,6 +4,7 @@
 # include <stdlib.h>
 # include "funcioneskernel.c"
 
+
 void mostrarProductos(){
 	PRODUCTO productos[100]; 
 	obtenerProductos(productos);
@@ -140,13 +141,10 @@ void registrarUsuario(){
 
 	do{
 		res = agregarCliente(nombre,email,contrasena); // Comprueba que se ejecute correctamente
-		printf("%d \n", res);
-		sleep(1);
-	}while(res < 0);
-	crearCarrito(email);	
-	printf("\n- Registro existoso -\n");
-	sleep(2);
-	system("clear");
+		//printf("%d \n", res);
+	}while(res < 0);	
+	crearCarrito(email);
+	printf("Registro existoso!");
 }
 
 void main(){
@@ -162,16 +160,16 @@ void main(){
 
 		switch(op){
 			case 1: //Muestra todos los productos
-				mostrarProductos();
-				printf("Presione una tecla para continuar\n\n");
-				getc(stdin);
+			//	mostrarProductos();
+				listado();
+				//printf("Presione una tecla para continuar\n\n");
+				//getc(stdin);
 				break;
 			case 2: //iniciar sesion
 				iniciarSesion();
 				system("clear");
 				break;
 			case 3: //Registrar nuevo usuario
-				system("clear");
 				registrarUsuario();
 				break;
 		}

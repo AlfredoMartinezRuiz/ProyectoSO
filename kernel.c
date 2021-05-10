@@ -8,8 +8,8 @@ int main(){
 	comprobarCarritos();
 	comprobarClientes();
 	/* Aquí crearemos a los clientes que querramos y los administraremos, al igual que los productos*/
-	/*agregarCliente(1, "Juan Pablo II", "Juanpablo@gmail.com", "Lola");
-	printf("%d", comprobarCredenciales("Juanpablo@gmail.com", "Lola"));*/
+	agregarCliente("Juan Pablo II", "Juanpablo@gmail.com", "Lola");
+	printf("%d", comprobarCredenciales("Juanpablo@gmail.com", "Lola"));
 	crearCarrito("Juanpablo@gmail.com");
 	
 

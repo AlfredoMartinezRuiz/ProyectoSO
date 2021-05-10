@@ -123,12 +123,12 @@ int obtenerNuevoID(){ // Obtenemos algun id disponible para un nuevo producto
         fclose(catalogo);
     	return i; //SI van en orden regresa el id que le sigue
 }
+  
 
 int agregarArticulo(char *nombre, int cantidad, float precio){ // Agregamos un articulo al catalogo
 	FILE *catalogo;
 	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-		comprobarCatalogo();
-        return -1; // error, no existe
+		return -1; // error, no existe
 	}
 	else{
 		key_t llave_cat = ftok("catalogos", 1);
@@ -158,11 +158,11 @@ int agregarArticulo(char *nombre, int cantidad, float precio){ // Agregamos un a
 	}
 }
 
+
 int buscarporNombre(char *nombre){ // Buscamos el id de un articulo por medio de su nombre exacto
 	FILE *catalogo;
 	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-		comprobarCatalogo();
-        return -1; // error, no existe
+		return -1; // error, no existe
 	}
 	else{
 		FILE *catalogo = fopen("catalogo.bin", "rb");
@@ -186,12 +186,10 @@ int buscarporNombre(char *nombre){ // Buscamos el id de un articulo por medio de
 		return 0;      
 	}
 }
-
 int agregarCantidad(int id, int cantidad){ // Agregamos la cantidad dada por el proveedor al articulo con el id dado por el mismo
 	FILE *catalogo;
 	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-		comprobarCatalogo();
-        return -1; // error, no existe
+		return -1; // error, no existe
 	}
 	else{
 		key_t llave_cat = ftok("catalogos", 1);
@@ -229,9 +227,9 @@ int agregarCantidad(int id, int cantidad){ // Agregamos la cantidad dada por el 
 	}
 }
 
+
 float consultarPrecio(int id){ // consultamos el precio de un producto por medio de su id
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -254,7 +252,6 @@ float consultarPrecio(int id){ // consultamos el precio de un producto por medio
 
 int consultarNombre(int id, char *nombre){ // Consultamos el nombre de un producto por medio de su id
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -278,7 +275,6 @@ int consultarNombre(int id, char *nombre){ // Consultamos el nombre de un produc
 
 int consultarDisponibilidad(int id){ // Consultamos la cantidad disponible de un producto por medio de su id
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -301,7 +297,6 @@ int consultarDisponibilidad(int id){ // Consultamos la cantidad disponible de un
 
 int descontarDeStock(int id, int cantidad){ // Descontamos la cantidad añadida al carrito, al producto con el id dado 
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -335,7 +330,6 @@ int descontarDeStock(int id, int cantidad){ // Descontamos la cantidad añadida 
 
 int obtenerProductos(PRODUCTO *p){ // Almacenamos todos los productos en la lista dada desde clientes
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -381,9 +375,9 @@ int obtenerNuevoIDcliente(){ // Obtenemos algun id disponible para un nuevo clie
     	return i; //SI van en orden regresa el id que le sigue
 }
 
+
 int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos un cliente 
     if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarClientes();
         return -1; // error, no existe
     }
      else{
@@ -408,14 +402,13 @@ int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos u
             return 0;
         }
         else{
-            return -2; // error, archivo ocupado
+            return -2; // error, catálogo ocupado
         }        
     }
 }
 
 int comprobarCredenciales(char *email, char *contrasena){ // Comprobamos que el correo exista y la contraseña sea correcta para que el cliente pueda iniciar sesión
     if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarClientes();
         return -1; // error, no existe
     }
      else{
@@ -442,7 +435,6 @@ int comprobarCredenciales(char *email, char *contrasena){ // Comprobamos que el 
 
 int crearCarrito(char *email){ // Creamos un carrito para cada cliente, esto pasa después de crearlos
     if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarCarritos();
         return -1; // error, no existe
     }
      else{
@@ -471,7 +463,6 @@ int crearCarrito(char *email){ // Creamos un carrito para cada cliente, esto pas
 
 int agregarACarrito(char *email, int id, int cantidad){ // Agregamos un producto al carrito de un cliente
     if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarCarritos();
         return -1; // error, no existe
     }
      else{
@@ -531,7 +522,6 @@ int agregarACarrito(char *email, int id, int cantidad){ // Agregamos un producto
 
 int pagarCarrito(char *email){ // Vaciamos el carrito porque ya "se hizo" el pago
     if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarCarritos();
         return -1; // error, no existe
     }
      else{
@@ -572,4 +562,26 @@ int pagarCarrito(char *email){ // Vaciamos el carrito porque ya "se hizo" el pag
             return -2; // error, catálogo ocupado
         }        
     }
+}
+
+
+void listado()
+{
+    FILE *catalogo;
+    catalogo=fopen("catalogo.bin","rb");
+    if (catalogo==NULL)
+        exit(1);
+    PRODUCTO producto;
+    fread(&producto, sizeof(PRODUCTO), 1, catalogo);
+    while(!feof(catalogo))
+    {
+        printf("Producto: %s\n", producto.nombre_producto);
+        printf("Precio: %0.2f\n", producto.precio);
+        printf("ID: %d\n", producto.id_producto);
+        printf("Articulos existentes: %d\n \n \n", producto.cantidad);
+
+        fread(&producto, sizeof(PRODUCTO), 1, catalogo);
+    }
+    fclose(catalogo);
+
 }
