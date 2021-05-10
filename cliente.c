@@ -142,7 +142,8 @@ void registrarUsuario(){
 		res = agregarCliente(nombre,email,contrasena); // Comprueba que se ejecute correctamente
 		printf("%d \n", res);
 		sleep(1);
-	}while(res < 0);	
+	}while(res < 0);
+	crearCarrito(email);	
 	printf("\n- Registro existoso -\n");
 	sleep(2);
 	system("clear");
