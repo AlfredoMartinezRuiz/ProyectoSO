@@ -67,7 +67,7 @@ void crearCarritos(){
     carritos = fopen("carritos.bin", "wb"); // Creamos el archivo si no existe
     fclose(carritos);    
 
-    /* Comprobamos después la existencia del semáforo del catálogo */
+    /* Comprobamos después la existencia del semáforo de carritos */
     key_t llave_car = ftok("carritos", 1);
     int semcar = semget(llave_car, 1, IPC_CREAT|PERMISOS);
     semctl(semcar, 0, SETVAL, 1);    
@@ -80,10 +80,23 @@ void crearClientes(){
     clientes = fopen("clientes.bin", "wb"); // Creamos el archivo si no existe
     fclose(clientes);    
 
-    /* Comprobamos después la existencia del semáforo del catálogo */
+    /* Comprobamos después la existencia del semáforo de clientes*/
     key_t llave_cli = ftok("clientes", 1);
     int semcli = semget(llave_cli, 1, IPC_CREAT|PERMISOS);
     semctl(semcli, 0, SETVAL, 1);
+}
+
+/* Funcion encargada de crear archivo clientes*/
+void crearProveedores(){
+    /* Comprobamos primero la existencia del carritos */
+    FILE *proveedores;
+    proveedores = fopen("proveedores.bin", "wb"); // Creamos el archivo si no existe
+    fclose(proveedores);    
+
+    /* Comprobamos después la existencia del semáforo de proveedores */
+    key_t llave_pro = ftok("proveedores", 1);
+    int sempro = semget(llave_pro, 1, IPC_CREAT|PERMISOS);
+    semctl(sempro, 0, SETVAL, 1);
 }
 
 /* Obtenemos algun id disponible para un nuevo producto */
