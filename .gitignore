@@ -1,0 +1,7 @@
+# Eliminando los .bin
+*.bin
+kernelinicial.c
+Productos.c
+prueba.c
+cliente
+proveedor
