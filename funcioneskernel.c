@@ -39,51 +39,23 @@ struct carrito{
 };
 typedef struct carrito CARRITO;
 
-void comprobarCatalogo(){
+void crearCatalogo(){
     /* Comprobamos primero la existencia del catalogo */
     FILE *catalogo;
-    if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        catalogo = fopen("catalogo.bin", "wb"); // Creamos el archivo si no existe
-        fclose(catalogo);
-    }
+    catalogo = fopen("catalogo.bin", "wb"); // Creamos el archivo si no existe
+    fclose(catalogo);    
 
     /* Comprobamos después la existencia del semáforo del catálogo */
     key_t llave_cat = ftok("catalogos", 1);
     int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
     semctl(semcat, 0, SETVAL, 1);
-
-/*
-    if(i == 1){        
-        int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
-        semctl(semcat, 0, SETVAL, 0);
-        printf("%d \n", semctl(semcat, 0, GETVAL, 0));
-        semctl(semcat, 0, SETVAL, 1);
-    }
-    else{
-        int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
-        printf("%d \n", semctl(semcat, 0, GETVAL, 0));
-    }    
-    if(catalogoKey = fopen("catalogo", "r")){ // Comprueba si existe el archivo del catálogo
-        printf("Catalogo existe \n");
-    }
-    else{ // Creamos la llave y el semáforo del archivo
-        printf("Catalogo no existe \n");
-        key_t llave_cat = ftok("catalogo", 0);
-        int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
-        semctl(semcat, 0, SETVAL, 0);
-        printf("%d", semctl(semcat, 0, GETVAL, 1));
-        semctl(semcat, 0, SETVAL, 1);
-    }*/
-
 }
 
-void comprobarCarritos(){
+void crearCarritos(){
     /* Comprobamos primero la existencia del carritos */
     FILE *carritos;
-    if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo de carritos
-        carritos = fopen("carritos.bin", "wb"); // Creamos el archivo si no existe
-        fclose(carritos);
-    }
+    carritos = fopen("carritos.bin", "wb"); // Creamos el archivo si no existe
+    fclose(carritos);    
 
     /* Comprobamos después la existencia del semáforo del catálogo */
     key_t llave_car = ftok("carritos", 1);
