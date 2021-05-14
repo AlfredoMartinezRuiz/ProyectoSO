@@ -10,6 +10,10 @@ int main(){
 	if(pid==-1){
 		perror("\nError al crear el proceso\n");
 		exit(-1);
+		
+		
+		
+		
 	}
 	if(pid == 0){ // Proceso encargado de manejar archivo de cat�logo -> Hijo 1
 		
