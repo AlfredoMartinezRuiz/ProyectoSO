@@ -1,7 +1,7 @@
 # Eliminando los .bin
 *.bin
-kernelinicial.c
 Productos.c
+kernelinicial.c
 prueba.c
 cliente
 proveedor
