@@ -99,25 +99,35 @@ void iniciarSesion(){
 				printf("Ingresa la cantidad del articulo\n");
 				scanf("%d", &cantidad);
 
-				printf("id: %d, cant: %d \n", id, cantidad);
 				do{
 					resultado_operacion = agregarACarrito(email, id, cantidad); // Comprobemos que no haya ningun error en la operacion
-					if(resultado_operacion == -5){
-						printf("Error: Producto no encontrado, o no hay stock \n");
-					}
-					printf("gola %d\n", resultado_operacion);
+					if(resultado_operacion == -5)
+						printf("Error: Producto no encontrado, o no hay stock \n");					
+					if(resultado_operacion < 0)
+						printf("Co0digo: %d\n", resultado_operacion);
 					sleep(1);
-				}while(resultado_operacion < 0);
+				}while(resultado_operacion < 0 && resultado_operacion!=-5);
 				printf("Operacion exitosa!\n");
 				printf("Volviendo al menu...\n");
 				sleep(5);			
 				break;
 
 			case 3:; // Ver el carrito completo
-				
+				system("clear");
+				CARRITO car;
+				fflush(stdout);
+				obtenerCarrito(email, &car);
+				printf("Productos: \n");
+				for(int i = 0; i < car.n_productos; i++){
+					printf("	Nombre: %s \n", car.productos[i].nombre_producto);
+					printf("	Precio: %0.2f \n", car.productos[i].precio);
+					printf("	Cantidad: %d \n", car.productos[i].cantidad);
+					printf("--------------------------------------------------------------- \n");
+				}
+				printf("Precio final con IVA: %0.2f \n", car.precio_total);
+				sleep(5);
 				break;
 			case 4:; // Pagar carrito
-				
 				break;
 			}
 		}while (op != 5);

@@ -14,7 +14,7 @@
 # define IVA 0.16
 # define GANANCIA 0.10
 # define PERMISOS 0644
-
+# define NPRODS 10
 struct cliente{
     int id_cliente;
     char nombre_cliente[30];
@@ -41,7 +41,7 @@ typedef struct producto PRODUCTO;
 
 struct carrito{
     char email[50]; // Para relacionarlo con su carrito
-    PRODUCTO productos[10]; // Puede llevar máximo de 10 productos en carrito, cantidad representará cuántos lleva
+    PRODUCTO productos[NPRODS]; // Puede llevar máximo de 10 productos en carrito, cantidad representará cuántos lleva
     int n_productos; // Representa cuantos tipos de productos diferentes lleva
     float precio_total;
 };
@@ -130,7 +130,8 @@ int agregarArticulo(char *nombre, int cantidad, float precio){
 			/*Asignamos los valores a la estructura*/
 			strcpy(prod.nombre_producto, nombre);
 			prod.cantidad = cantidad;
-			prod.precio = precio;   
+            float precio_aux = precio + precio*IVA + precio*GANANCIA;
+			prod.precio = precio_aux;
 			
 			fwrite(&prod, sizeof(PRODUCTO), 1, catalogo); //escribimos la estructura
 			fclose(catalogo);
@@ -298,19 +299,24 @@ int descontarDeStock(int id, int cantidad){
     }
      else{
         key_t llave_cat = ftok("catalogos", 1);
-        int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
-        if(semctl(semcat, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
-            semctl(semcat, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
+		int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
+		if(semctl(semcat, 0, GETVAL, 0) == 0){ // Comprobamos que no esté ocupado
+			semctl(semcat, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
             
             /* Creamos un producto*/
             PRODUCTO prod;
-            FILE *catalogo = fopen("catalogo.bin", "rb");
+            FILE *catalogo = fopen("catalogo.bin", "r+b");
             
             fread(&prod, sizeof(PRODUCTO), 1, catalogo);
             
             while(!feof(catalogo)){ // Recorremos cada estructura del archivo
                 if(prod.id_producto == id){ // checamos que coincida con el ID
                     prod.cantidad = prod.cantidad - cantidad; // Descontamos la cantidad que se agregó al carrito 
+                    // Actualizamos el carrito en el archivo 
+                    int pos = ftell(catalogo) - sizeof(PRODUCTO); //actualiza el puntero
+                    fseek(catalogo, pos, SEEK_SET);
+                    fwrite(&prod, sizeof(PRODUCTO), 1, catalogo); //escribimos la estructura modificada
+                             
                     fclose(catalogo); 
                     semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya noestá ocupado       
                     return 0;
@@ -392,7 +398,7 @@ int crearCarrito(char *email){
             CARRITO car;
             strcpy(car.email, email);
             car.n_productos = 0;
-            
+            car.precio_total = 0;
             FILE *carritos = fopen("carritos.bin", "ab");
             fwrite(&car, sizeof(CARRITO), 1, carritos);
 
@@ -495,7 +501,7 @@ int agregarACarrito(char *email, int id, int cantidad){
             // Consultamos disponibilidad
             int respuesta = consultarDisponibilidad(id);
             if(respuesta >= cantidad){ // Si hay disponibles
-                descontarDeStock(id, cantidad); // Descontamos lo que apartamos
+                printf("%d \n", descontarDeStock(id, cantidad)); // Descontamos lo que apartamos
                 /* Creamos un carrito*/
                 CARRITO car;            
                 FILE *carritos = fopen("carritos.bin", "r+b");  
@@ -521,9 +527,19 @@ int agregarACarrito(char *email, int id, int cantidad){
                         prod.cantidad = cantidad;
                         
                         car.precio_total = car.precio_total + (prod.cantidad*prod.precio); // Sumamos el precio que ya estaba con lo que tenemos aquí
-                        
-                        car.productos[car.n_productos] = prod;
-                        car.n_productos++;
+
+                        /* Comprobamos si ya esta el producto en el carrito*/
+                        int mismo_producto = 0;
+                        for(int i = 0; i < car.n_productos; i++){
+                            if(car.productos[i].id_producto == id){ // Si llegase a ser lo mismo que otro carrito 
+                                car.productos[i].cantidad += cantidad;
+                                mismo_producto = 1;
+                            }
+                        }
+                        if(mismo_producto == 0){
+                            car.productos[car.n_productos] = prod;
+                            car.n_productos++;
+                        }
                         
                         // Actualizamos el carrito en el archivo 
                         int pos = ftell(carritos) - sizeof(CARRITO); //actualiza el puntero
@@ -550,6 +566,42 @@ int agregarACarrito(char *email, int id, int cantidad){
             return -2; // error, carritos ocupado
         }  
             
+    }
+}
+
+/* Agregamos un producto al carrito de un cliente */
+int obtenerCarrito(char *email, CARRITO *c){ 
+    if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo del carritos
+        crearCarritos();    
+
+        /* Creamos su carrito */
+            int operacion;
+            do{
+                operacion = crearCarrito(email); // Creamos su carrito
+            }while (operacion < 0);             
+        return -1; // error, no existe
+    }
+    else{
+
+         /* Creamos un carrito*/
+        CARRITO car;            
+        FILE *carritos = fopen("carritos.bin", "rb");  
+        fread(&car, sizeof(CARRITO), 1, carritos);
+
+        while(!feof(carritos)){                   
+            if(strcmp(car.email, email) == 0){
+                for(int i = 0; i < NPRODS; i++){
+                    (*c).productos[i] = car.productos[i];
+                }
+                (*c).n_productos = car.n_productos;
+                (*c).precio_total = car.precio_total;
+                fclose(carritos); 
+                return 0;
+            }
+            fread(&car, sizeof(CARRITO), 1, carritos);					
+        }                
+        fclose(carritos);
+        return -2; //Carrito no encontrado
     }
 }
 
