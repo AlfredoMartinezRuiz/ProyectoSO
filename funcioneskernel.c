@@ -23,6 +23,14 @@ struct cliente{
 };
 typedef struct cliente CLIENTE;
 
+struct proveedor{
+    int id_proveedor;
+    char RFC[13];
+    char nombre[50];
+    char contrasena[30];
+};
+typedef struct proveedor PROVEEDOR;
+
 struct producto{
     int id_producto;
     char nombre_producto[40];
@@ -39,6 +47,7 @@ struct carrito{
 };
 typedef struct carrito CARRITO;
 
+/* Funcion encargada de crear archivo catalgo */
 void crearCatalogo(){
     /* Comprobamos primero la existencia del catalogo */
     FILE *catalogo;
@@ -51,6 +60,7 @@ void crearCatalogo(){
     semctl(semcat, 0, SETVAL, 1);
 }
 
+/* Funcion encargada de crear archivo carritos */
 void crearCarritos(){
     /* Comprobamos primero la existencia del carritos */
     FILE *carritos;
@@ -60,47 +70,50 @@ void crearCarritos(){
     /* Comprobamos después la existencia del semáforo del catálogo */
     key_t llave_car = ftok("carritos", 1);
     int semcar = semget(llave_car, 1, IPC_CREAT|PERMISOS);
+    semctl(semcar, 0, SETVAL, 1);    
 }
 
-void comprobarClientes(){
+/* Funcion encargada de crear archivo clientes*/
+void crearClientes(){
     /* Comprobamos primero la existencia del carritos */
     FILE *clientes;
-    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo de clientes
-        clientes = fopen("clientes.bin", "wb"); // Creamos el archivo si no existe
-        fclose(clientes);
-    }
+    clientes = fopen("clientes.bin", "wb"); // Creamos el archivo si no existe
+    fclose(clientes);    
 
     /* Comprobamos después la existencia del semáforo del catálogo */
     key_t llave_cli = ftok("clientes", 1);
     int semcli = semget(llave_cli, 1, IPC_CREAT|PERMISOS);
+    semctl(semcli, 0, SETVAL, 1);
 }
 
-int obtenerNuevoID(){ // Obtenemos algun id disponible para un nuevo producto
+/* Obtenemos algun id disponible para un nuevo producto */
+int obtenerNuevoID(){
 	FILE *catalogo = fopen("catalogo.bin", "rb");
-    	int id;
-    	/* Creamos un producto*/
-        PRODUCTO prod;
-    	fread(&prod, sizeof(PRODUCTO), 1, catalogo);
-    	int i=0;
-    	while(!feof(catalogo)){ // Recorremos cada estructura del archivo
-    	 	id = prod.id_producto;
-            
-             	if(id != i){
-		    	fclose(catalogo);
-			return id; //id es el que se lee
-            	}
-            	fread(&prod, sizeof(PRODUCTO), 1, catalogo);
-            	i++;
+    int id;
+    /* Creamos un producto*/
+    PRODUCTO prod;
+    fread(&prod, sizeof(PRODUCTO), 1, catalogo);
+    int i=0;
+    while(!feof(catalogo)){ // Recorremos cada estructura del archivo
+        id = prod.id_producto;
+        
+        if(id != i){
+            fclose(catalogo);
+            return id; //id es el que se lee
         }
-        fclose(catalogo);
-    	return i; //SI van en orden regresa el id que le sigue
+        fread(&prod, sizeof(PRODUCTO), 1, catalogo);
+        i++;
+    }
+    fclose(catalogo);
+    return i; //SI van en orden regresa el id que le sigue
 }
   
-
-int agregarArticulo(char *nombre, int cantidad, float precio){ // Agregamos un articulo al catalogo
+/* Agregamos un articulo al catalogo */
+int agregarArticulo(char *nombre, int cantidad, float precio){ 
 	FILE *catalogo;
 	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-		return -1; // error, no existe
+		crearCatalogo();
+        return -1; // error, no existe
 	}
 	else{
 		key_t llave_cat = ftok("catalogos", 1);
@@ -130,11 +143,12 @@ int agregarArticulo(char *nombre, int cantidad, float precio){ // Agregamos un a
 	}
 }
 
-
-int buscarporNombre(char *nombre){ // Buscamos el id de un articulo por medio de su nombre exacto
+/* Buscamos el id de un articulo por medio de su nombre exacto */
+int buscarporNombre(char *nombre){ 
 	FILE *catalogo;
 	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-		return -1; // error, no existe
+		crearCatalogo();
+        return -1; // error, no existe
 	}
 	else{
 		FILE *catalogo = fopen("catalogo.bin", "rb");
@@ -147,8 +161,7 @@ int buscarporNombre(char *nombre){ // Buscamos el id de un articulo por medio de
 			if(strcmp(nombre, prod.nombre_producto)==0){
 				int id = prod.id_producto;
 				existe=1;
-				return id; 
-				
+				return id;				
 			}
 			fread(&prod, sizeof(PRODUCTO), 1, catalogo);
 		}
@@ -158,10 +171,13 @@ int buscarporNombre(char *nombre){ // Buscamos el id de un articulo por medio de
 		return 0;      
 	}
 }
-int agregarCantidad(int id, int cantidad){ // Agregamos la cantidad dada por el proveedor al articulo con el id dado por el mismo
+
+/* Agregamos la cantidad dada por el proveedor al articulo con el id dado por el mismo */
+int agregarCantidad(int id, int cantidad){ 
 	FILE *catalogo;
 	if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-		return -1; // error, no existe
+		crearCatalogo();
+        return -1; // error, no existe
 	}
 	else{
 		key_t llave_cat = ftok("catalogos", 1);
@@ -174,6 +190,7 @@ int agregarCantidad(int id, int cantidad){ // Agregamos la cantidad dada por el 
 			PRODUCTO prod;
 			int existe = 0; //bandera para saber si existe el producto
 			fread(&prod, sizeof(PRODUCTO), 1, catalogo);
+
 			while(!feof(catalogo)){
 				if(id == prod.id_producto){
 					prod.cantidad = prod.cantidad+cantidad; //aumentamos la cantidad
@@ -181,8 +198,8 @@ int agregarCantidad(int id, int cantidad){ // Agregamos la cantidad dada por el 
 					int pos=ftell(catalogo)-sizeof(PRODUCTO); //actualiza el puntero
 					fseek(catalogo,pos,SEEK_SET);
 					fwrite(&prod, sizeof(PRODUCTO), 1, catalogo); //escribimos la estructura modificada
-					existe=1;
-           				break;
+					existe = 1;
+           			break;
 				}
 				fread(&prod, sizeof(PRODUCTO), 1, catalogo);
 			}
@@ -199,9 +216,10 @@ int agregarCantidad(int id, int cantidad){ // Agregamos la cantidad dada por el 
 	}
 }
 
-
-float consultarPrecio(int id){ // consultamos el precio de un producto por medio de su id
+/* Consultamos el precio de un producto por medio de su id */
+float consultarPrecio(int id){ 
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+        crearCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -222,8 +240,10 @@ float consultarPrecio(int id){ // consultamos el precio de un producto por medio
     }
 }
 
-int consultarNombre(int id, char *nombre){ // Consultamos el nombre de un producto por medio de su id
+/* Consultamos el nombre de un producto por medio de su id */
+int consultarNombre(int id, char *nombre){ 
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+        crearCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -236,6 +256,7 @@ int consultarNombre(int id, char *nombre){ // Consultamos el nombre de un produc
         while(!feof(catalogo)){ // Recorremos cada estructura del archivo
             if(prod.id_producto == id){ // checamos que coincida con el ID
                 strcpy(nombre, prod.nombre_producto);// Retornamos el precio del producto
+                fclose(catalogo);
                 return 0;
             }
             fread(&prod, sizeof(PRODUCTO), 1, catalogo);
@@ -245,8 +266,10 @@ int consultarNombre(int id, char *nombre){ // Consultamos el nombre de un produc
     }
 }
 
-int consultarDisponibilidad(int id){ // Consultamos la cantidad disponible de un producto por medio de su id
+/* Consultamos la cantidad disponible de un producto por medio de su id */
+int consultarDisponibilidad(int id){ 
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+        crearCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -267,8 +290,10 @@ int consultarDisponibilidad(int id){ // Consultamos la cantidad disponible de un
     }
 }
 
-int descontarDeStock(int id, int cantidad){ // Descontamos la cantidad añadida al carrito, al producto con el id dado 
+/* Descontamos la cantidad añadida al carrito, al producto con el id dado */
+int descontarDeStock(int id, int cantidad){  
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+        crearCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -287,13 +312,13 @@ int descontarDeStock(int id, int cantidad){ // Descontamos la cantidad añadida 
                 if(prod.id_producto == id){ // checamos que coincida con el ID
                     prod.cantidad = prod.cantidad - cantidad; // Descontamos la cantidad que se agregó al carrito 
                     fclose(catalogo); 
-                    semctl(semcat, 0, SETVAL, 1); // asignamos a 0 para decir que está ocupado       
+                    semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya noestá ocupado       
                     return 0;
                 }
                 fread(&prod, sizeof(PRODUCTO), 1, catalogo);
             }
             fclose(catalogo);        
-            semctl(semcat, 0, SETVAL, 1); // asignamos a 0 para decir que está ocupado
+            semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
             return -3; // ID no encontrado
         }
         else{
@@ -302,8 +327,10 @@ int descontarDeStock(int id, int cantidad){ // Descontamos la cantidad añadida 
     }
 }
 
-int obtenerProductos(PRODUCTO *p){ // Almacenamos todos los productos en la lista dada desde clientes
+/* Almacenamos todos los productos en la lista dada desde clientes */
+int obtenerProductos(PRODUCTO *p){ 
     if(fopen("catalogo.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+        crearCatalogo();
         return -1; // error, no existe
     }
      else{
@@ -325,91 +352,34 @@ int obtenerProductos(PRODUCTO *p){ // Almacenamos todos los productos en la list
     }
 }
 
-int obtenerNuevoIDcliente(){ // Obtenemos algun id disponible para un nuevo cliente
+/* Obtenemos algun id disponible para un nuevo cliente */
+int obtenerNuevoIDcliente(){ 
 	FILE *clientes = fopen("clientes.bin", "rb");
-    	char *aux;
-    	char *c_aux=(char*)malloc(sizeof(char)*50);
-    	int id;
-    	char comp;
-    	aux = fgets(c_aux, 50, clientes);
-    	int i=0;
-    	while(aux != NULL){
-	    	id = strtol((c_aux+1), &c_aux, 10); //Obtiene lo que no sea caracter 
-	    					     //se pone c_aux+1 por el espacio que se tiene al principio
-    		if(id != i){
-	    		fclose(clientes);
-			return id;
-		}
-		aux = fgets(c_aux, 50, clientes);
-			//id es el que leo del archivo
-		i++; //contador con el que se compara
-			
-    	}
-    	fclose(clientes);
-    	return i; //SI van en orden regresa el id que le sigue
-}
-
-
-int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos un cliente 
-    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        comprobarClientes();
-        return -1; // error, no existe
-    }
-     else{
-        key_t llave_cli = ftok("clientes", 1);
-        int semcli = semget(llave_cli, 1, IPC_CREAT|PERMISOS);
-        if(semctl(semcli, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
-            semctl(semcli, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
-
-            /* Creamos un cliente*/
-            CLIENTE cli;
-            cli.id_cliente = obtenerNuevoIDcliente();
-            strcpy(cli.nombre_cliente, nombre);
-            strcpy(cli.contrasena, contrasena);
-            strcpy(cli.email, email);
-
-            
-            FILE *clientes = fopen("clientes.bin", "ab");
-            fwrite(&cli, sizeof(CLIENTE), 1, clientes);
-
+    char *aux;
+    char *c_aux=(char*)malloc(sizeof(char)*50);
+    int id;
+    char comp;
+    aux = fgets(c_aux, 50, clientes);
+    int i=0;
+    while(aux != NULL){
+        id = strtol((c_aux+1), &c_aux, 10); //Obtiene lo que no sea caracter 
+                                //se pone c_aux+1 por el espacio que se tiene al principio
+        if(id != i){
             fclose(clientes);
-            semctl(semcli, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
-            return 0;
+            return id;
         }
-        else{
-            return -2; // error, catálogo ocupado
-        }        
+        aux = fgets(c_aux, 50, clientes);
+        //id es el que leo del archivo
+        i++; //contador con el que se compara        
     }
+    fclose(clientes);
+    return i; //SI van en orden regresa el id que le sigue
 }
 
-int comprobarCredenciales(char *email, char *contrasena){ // Comprobamos que el correo exista y la contraseña sea correcta para que el cliente pueda iniciar sesión
-    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
-        return -1; // error, no existe
-    }
-     else{
-        /* Creamos un cliente*/
-        CLIENTE cli;
-        FILE *clientes = fopen("clientes.bin", "rb");
-        
-        fread(&cli, sizeof(CLIENTE), 1, clientes);
-        
-        while(!feof(clientes)){
-            if(strcmp(cli.email, email) == 0){ // checamos que exista el correo
-                if(strcmp(cli.contrasena, contrasena) == 0){ // checamos que sea correcta la contraseña
-                    fclose(clientes); 
-                    return 0;
-                }
-                return -3; // Contraseña incorrecta
-            }
-            fread(&cli, sizeof(CLIENTE), 1, clientes);
-        }
-        fclose(clientes);        
-        return -2; // Correo no encontrado       
-    }
-}
-
-int crearCarrito(char *email){ // Creamos un carrito para cada cliente, esto pasa después de crearlos
-    if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+/* Creamos un carrito para cada cliente, esto pasa después de crearlos */
+int crearCarrito(char *email){ 
+    if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo de carritos
+        crearCarritos();
         return -1; // error, no existe
     }
      else{
@@ -431,39 +401,119 @@ int crearCarrito(char *email){ // Creamos un carrito para cada cliente, esto pas
             return 0;
         }
         else{
-            return -2; // error, catálogo ocupado
+            return -2; // error, carritos ocupado
         }        
     }
 }
 
-int agregarACarrito(char *email, int id, int cantidad){ // Agregamos un producto al carrito de un cliente
-    if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+/* Agregamos un cliente*/
+int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos un cliente 
+    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo de clientes
+        crearClientes();
         return -1; // error, no existe
     }
      else{
+        key_t llave_cli = ftok("clientes", 1);
+        int semcli = semget(llave_cli, 1, IPC_CREAT|PERMISOS);
+        if(semctl(semcli, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
+            semctl(semcli, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
+
+            /* Creamos un cliente*/
+            CLIENTE cli;
+            cli.id_cliente = obtenerNuevoIDcliente();
+            strcpy(cli.nombre_cliente, nombre);
+            strcpy(cli.contrasena, contrasena);
+            strcpy(cli.email, email);
+            
+            /* Creamos su carrito */
+            int operacion;
+            do{
+                operacion = crearCarrito(email); // Creamos su carrito
+            }while (operacion < 0);          
+            
+            
+            FILE *clientes = fopen("clientes.bin", "ab");
+            fwrite(&cli, sizeof(CLIENTE), 1, clientes);
+
+            fclose(clientes);
+            semctl(semcli, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
+            return 0;
+        }
+        else{
+            return -2; // error, clientes ocupado
+        }        
+    }
+}
+
+/* Comprobamos que el correo exista y la contraseña sea correcta para que el cliente pueda iniciar sesión */
+int comprobarCredenciales(char *email, char *contrasena){ 
+    if(fopen("clientes.bin", "rb") == NULL){ // Comprueba si no existe el archivo de clientes
+        crearClientes();
+        return -1; // error, no existe
+    }
+     else{
+        /* Creamos un cliente*/
+        CLIENTE cli;
+        FILE *clientes = fopen("clientes.bin", "rb");
+        
+        fread(&cli, sizeof(CLIENTE), 1, clientes);
+        while(!feof(clientes)){
+            if(strcmp(cli.email, email) == 0){ // checamos que exista el correo
+                if(strcmp(cli.contrasena, contrasena) == 0){ // checamos que sea correcta la contraseña
+                    fclose(clientes); 
+                    return 0;
+                }
+                return -3; // Contraseña incorrecta
+            }
+            fread(&cli, sizeof(CLIENTE), 1, clientes);
+        }
+        fclose(clientes);        
+        return -2; // Correo no encontrado       
+    }
+}
+
+/* Agregamos un producto al carrito de un cliente */
+int agregarACarrito(char *email, int id, int cantidad){ 
+    if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo del carritos
+        crearCarritos();    
+
+        /* Creamos su carrito */
+            int operacion;
+            do{
+                operacion = crearCarrito(email); // Creamos su carrito
+            }while (operacion < 0);             
+        return -1; // error, no existe
+    }
+    else{
         key_t llave_car = ftok("carritos", 1);
         int semcar = semget(llave_car, 1, IPC_CREAT|PERMISOS);
-        if(semctl(semcar, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
-            semctl(semcar, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
+        //printf("%d", semctl(semcar, 0, GETVAL, 0));
 
+        if(semctl(semcar, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
+            semctl(semcar, 0, SETVAL, 0);
+            
             // Consultamos disponibilidad
             int respuesta = consultarDisponibilidad(id);
             if(respuesta >= cantidad){ // Si hay disponibles
                 descontarDeStock(id, cantidad); // Descontamos lo que apartamos
                 /* Creamos un carrito*/
                 CARRITO car;            
-                FILE *carritos = fopen("carritos.bin", "ab");  
+                FILE *carritos = fopen("carritos.bin", "r+b");  
                 fread(&car, sizeof(CARRITO), 1, carritos);
-        
+                //printf("%s, %s \n", email, car.email);
+                
                 while(!feof(carritos)){
-                    if(strcmp(car.email, email) == 0){ // checamos que exista el correo
+                   
+                    if(strcmp(car.email, email) == 0){
+                        
                         // Creamos el producto que va ingresar
                         PRODUCTO prod;
                         prod.id_producto = id;
                         // Obtenemos el nombre con el id
-                        char *nombre;
+                        char *nombre = (char *) malloc(sizeof(char)*30);
                         consultarNombre(id, nombre);
                         strcpy(prod.nombre_producto, nombre);
+                        
                         // Obtenemos el precio con el id
                         float precio = consultarPrecio(id);
                         prod.precio = precio;
@@ -471,18 +521,25 @@ int agregarACarrito(char *email, int id, int cantidad){ // Agregamos un producto
                         prod.cantidad = cantidad;
                         
                         car.precio_total = car.precio_total + (prod.cantidad*prod.precio); // Sumamos el precio que ya estaba con lo que tenemos aquí
+                        
                         car.productos[car.n_productos] = prod;
-                        car.n_productos++;                        
-
-                        fclose(carritos);      
+                        car.n_productos++;
+                        
+                        // Actualizamos el carrito en el archivo 
+                        int pos = ftell(carritos) - sizeof(CARRITO); //actualiza el puntero
+					    fseek(carritos, pos, SEEK_SET);
+					    fwrite(&car, sizeof(CARRITO), 1, carritos); //escribimos la estructura modificada
+                        
+                        /* Cerramos todo */
+                        fclose(carritos);
                         semctl(semcar, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
                         return 0;
                     }
-                    fread(&car, sizeof(CARRITO), 1, carritos);
-                }
+                    fread(&car, sizeof(CARRITO), 1, carritos);					
+                }                
                 fclose(carritos);      
                 semctl(semcar, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
-                return -10; // Correo no encontrado  
+                return -10; // Correo no encontrado
             }
             else{ // Hubo algún error y lo notificamos
                 semctl(semcar, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
@@ -490,13 +547,16 @@ int agregarACarrito(char *email, int id, int cantidad){ // Agregamos un producto
             }
         }
         else{
-            return -2; // error, catálogo ocupado
-        }        
+            return -2; // error, carritos ocupado
+        }  
+            
     }
 }
 
-int pagarCarrito(char *email){ // Vaciamos el carrito porque ya "se hizo" el pago
-    if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo del catálogo
+/* Vaciamos el carrito porque ya "se hizo" el pago */
+int pagarCarrito(char *email){ 
+    if(fopen("carritos.bin", "rb") == NULL){ // Comprueba si no existe el archivo de carritos
+        crearCarritos();
         return -1; // error, no existe
     }
      else{
@@ -534,12 +594,12 @@ int pagarCarrito(char *email){ // Vaciamos el carrito porque ya "se hizo" el pag
             return -5; // Correo no encontrado 
         }
         else{
-            return -2; // error, catálogo ocupado
+            return -2; // error, carritos ocupado
         }        
     }
 }
 
-
+/* Funcion temporal */
 void listado()
 {
     FILE *catalogo;

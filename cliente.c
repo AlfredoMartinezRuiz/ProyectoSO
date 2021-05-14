@@ -59,12 +59,17 @@ void iniciarSesion(){
 	scanf("%d", &op);
 	fgets(contrasena, 30, stdin);
 	strtok(contrasena, "\n");
+	int comprobacion = comprobarCredenciales(email, contrasena);
 
-	if(comprobarCredenciales(email, contrasena)  == -2){
+	if(comprobacion == -2 || comprobacion == -1){
 		printf("Correo no encontrado \n");
+		printf("Volviendo a menu...\n");
+		sleep(2);
 	}
-	else if(comprobarCredenciales(email, contrasena)  == -3){
+	else if(comprobacion == -3){
 		printf("Contraseña incorrecta \n");
+		printf("Volviendo a menu...\n");
+		sleep(2);
 	}
 	else{
 		do{
@@ -77,24 +82,24 @@ void iniciarSesion(){
 			printf("5. Salir.\n");
 			scanf("%d", &op);
 
-			int resultado_operacion;
+			int resultado_operacion = 0;
 			int id;
 			switch (op){ 
 			case 1:;	// Mostrar todos los productos
-				mostrarProductos();
-				printf("Presione una tecla para continuar\n\n");
-				getc(stdin);
+				listado();
+				//printf("Presione una tecla para continuar\n\n");
+				//getc(stdin);
 				break;
 
 			case 2: ; // Agregar articulo a carrito
 				int cantidad;
-				/*mostrarProductos();
+				listado();
 				printf("Ingresa el ID del articulo\n");
 				scanf("%d", &id);
 				printf("Ingresa la cantidad del articulo\n");
-				scanf("%d", &cantidad);*/
-				id = 0;
-				cantidad = 2;
+				scanf("%d", &cantidad);
+
+				printf("id: %d, cant: %d \n", id, cantidad);
 				do{
 					resultado_operacion = agregarACarrito(email, id, cantidad); // Comprobemos que no haya ningun error en la operacion
 					if(resultado_operacion == -5){
@@ -105,7 +110,7 @@ void iniciarSesion(){
 				}while(resultado_operacion < 0);
 				printf("Operacion exitosa!\n");
 				printf("Volviendo al menu...\n");
-				sleep(1);			
+				sleep(5);			
 				break;
 
 			case 3:; // Ver el carrito completo
@@ -116,7 +121,7 @@ void iniciarSesion(){
 				break;
 			}
 		}while (op != 5);
-		}
+	}
 }
 
 void registrarUsuario(){
@@ -147,7 +152,6 @@ void registrarUsuario(){
 		res = agregarCliente(nombre,email,contrasena); // Comprueba que se ejecute correctamente
 		//printf("%d \n", res);
 	}while(res < 0);	
-	crearCarrito(email);
 	printf("Registro existoso!");
 }
 
