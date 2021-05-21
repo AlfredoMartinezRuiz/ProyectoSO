@@ -4,12 +4,12 @@
 # include <stdlib.h>
 # include "funcioneskernel.c"
 
-
 void main(){
 	int op;
 	char aux;
 	do{
 		system("clear");
+		
 		printf("Bienvenido! \nQue desea hacer?\n");
 		printf("1. Agregar existencia.\n");
 		printf("2. Agregar articulo.\n");
@@ -35,7 +35,7 @@ void main(){
 				scanf("%d", &id);
 
 				resultado_operacion = agregarCantidad(id, cantidad_aumentada); // Comprueba que se ejecute correctamente
-				//printf("res: %d \n", resultado_operacion);
+				//printf("res_agregarCantidad: %d \n", resultado_operacion);
 				if(resultado_operacion == -3){
 					printf("Error: Producto no encontrado, intente de nuevo\n");
 				}
@@ -67,7 +67,7 @@ void main(){
 						
 			do{
 				resultado_operacion = agregarArticulo(nombre, cantidad, precio); // Comprueba que se ejecute correctamente
-				//printf("%d \n", resultado_operacion);
+				//printf("res_agregarArticulo: %d \n", resultado_operacion);
 				sleep(1);
 			}while(resultado_operacion < 0);					
 			printf("Operacion exitosa!\n");
@@ -103,7 +103,7 @@ void main(){
 		case 4:; //Ver articulos
 			//mostrarProductos();
 			listado();
-			sleep(2);
+			sleep(4);
 			break;
 		}
 	}while (op != 5);
