@@ -28,6 +28,7 @@ struct proveedor{
     char RFC[13];
     char nombre[50];
     char contrasena[30];
+    char email[50];
 };
 typedef struct proveedor PROVEEDOR;
 
@@ -441,7 +442,7 @@ int agregarCliente(char *nombre, char *email,  char *contrasena){ // Agregamos u
             /* Creamos un cliente*/
             CLIENTE cli;
             cli.id_cliente = obtenerNuevoIDcliente();
-            printf("idCliente: %d", cli.id_cliente);
+            //printf("idCliente: %d", cli.id_cliente);
             strcpy(cli.nombre_cliente, nombre);
             strcpy(cli.contrasena, contrasena);
             strcpy(cli.email, email);
@@ -492,6 +493,89 @@ int comprobarCredenciales(char *email, char *contrasena){
         return -2; // Correo no encontrado       
     }
 }
+
+/* Obtenemos algun id disponible para un nuevo proveedor */
+int obtenerNuevoIDproveedor(){   
+    FILE *proveedores = fopen("proveedores.bin", "rb");
+    int id;
+    PROVEEDOR pro;
+    fread(&pro, sizeof(PROVEEDOR), 1, proveedores);
+    int i=0;
+    while(!feof(proveedores)){
+        id = pro.id_proveedor;
+        
+        if(id != i){
+            fclose(proveedores);
+            return id;
+        }
+        fread(&pro, sizeof(PROVEEDOR), 1, proveedores);
+        //id es el que leo del archivo
+        i++; //contador con el que se compara        
+    }
+    fclose(proveedores);
+    return i; //Si van en orden regresa el id que le sigue
+}
+
+/* Agregamos proveedor */
+int agregarProveedor(char *nombre, char *email,  char *rfc,  char *contrasena){ // Agregamos un proveedor 
+    if(fopen("proveedores.bin", "rb") == NULL){ // Comprueba si no existe el archivo de proveedores
+        crearProveedores();
+        return -1; // error, no existe
+    }
+     else{
+        key_t llave_pro = ftok("/tmp", 4);
+        int sempro = semget(llave_pro, 1, IPC_CREAT|PERMISOS);
+        if(semctl(sempro, 0, GETVAL, 0) > 0){ // Comprobamos que no esté ocupado
+            semctl(sempro, 0, SETVAL, 0); // asignamos a 0 para decir que está ocupado
+
+            /* Creamos un proveedor*/
+            PROVEEDOR pro;
+            pro.id_proveedor = obtenerNuevoIDproveedor();
+            strcpy(pro.nombre, nombre);
+            strcpy(pro.email, email);
+            strcpy(pro.RFC, rfc);
+            strcpy(pro.contrasena, contrasena);
+                                   
+            FILE *proveedores = fopen("proveedores.bin", "ab");
+            fwrite(&pro, sizeof(CLIENTE), 1, proveedores);
+
+            fclose(proveedores);
+            semctl(sempro, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
+            return 0;
+        }
+        else{
+            return -2; // error, proveedores ocupado
+        }        
+    }
+}
+
+/* Comprobamos que el email exista y la contraseña sea correcta para que el proveedor pueda iniciar sesión */
+int comprobarCredencialesP(char *email, char *contrasena){ 
+    if(fopen("proveedores.bin", "rb") == NULL){ // Comprueba si no existe el archivo de proveedores
+        crearProveedores();
+        return -1; // error, no existe
+    }
+     else{
+        /* Creamos un proveedor*/
+        PROVEEDOR pro;
+        FILE *proveedores = fopen("proveedores.bin", "rb");
+        
+        fread(&pro, sizeof(PROVEEDOR), 1, proveedores);
+        while(!feof(proveedores)){
+            if(strcmp(pro.email, email) == 0){ // checamos que exista el rfc
+                if(strcmp(pro.contrasena, contrasena) == 0){ // checamos que sea correcta la contraseña
+                    fclose(proveedores); 
+                    return 0;
+                }
+                return -3; // Contraseña incorrecta
+            }
+            fread(&pro, sizeof(PROVEEDOR), 1, proveedores);
+        }
+        fclose(proveedores);        
+        return -2; // email no encontrado       
+    }
+}
+
 
 /* Agregamos un producto al carrito de un cliente */
 int agregarACarrito(char *email, int id, int cantidad){ 

@@ -106,7 +106,7 @@ void iniciarSesion(){
 					if(resultado_operacion == -5)
 						printf("Error: Producto no encontrado, o no hay stock\n");				
 					if(resultado_operacion < 0)
-						printf("Co0digo: %d\n", resultado_operacion);
+						printf("Codigo: %d\n", resultado_operacion);
 					sleep(1);
 				}while(resultado_operacion < 0 && resultado_operacion!=-5);
 				printf("Operacion exitosa!\n");
