@@ -25,10 +25,10 @@ typedef struct cliente CLIENTE;
 
 struct proveedor{
     int id_proveedor;
-    char RFC[13];
     char nombre[50];
-    char contrasena[30];
     char email[50];
+    char RFC[13];
+    char contrasena[30];
 };
 typedef struct proveedor PROVEEDOR;
 
@@ -536,8 +536,9 @@ int agregarProveedor(char *nombre, char *email,  char *rfc,  char *contrasena){ 
             strcpy(pro.RFC, rfc);
             strcpy(pro.contrasena, contrasena);
                                    
-            FILE *proveedores = fopen("proveedores.bin", "ab");
-            fwrite(&pro, sizeof(CLIENTE), 1, proveedores);
+            FILE *proveedores = fopen("proveedores.bin", "a+b");
+            printf("%d %s %s %s %s", pro.id_proveedor,pro.nombre, pro.email, pro.RFC, pro.contrasena);
+            fwrite(&pro, sizeof(PROVEEDOR), 1, proveedores);
 
             fclose(proveedores);
             semctl(sempro, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
@@ -558,8 +559,8 @@ int comprobarCredencialesP(char *email, char *contrasena){
      else{
         /* Creamos un proveedor*/
         PROVEEDOR pro;
-        FILE *proveedores = fopen("proveedores.bin", "rb");
-        
+        FILE *proveedores = fopen("proveedores.bin", "a+b");
+        printf("%s %s",pro.email,pro.contrasena);
         fread(&pro, sizeof(PROVEEDOR), 1, proveedores);
         while(!feof(proveedores)){
             if(strcmp(pro.email, email) == 0){ // checamos que exista el rfc

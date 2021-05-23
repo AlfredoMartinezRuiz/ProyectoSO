@@ -145,7 +145,7 @@ void iniciarSesion(){
 	fgets(contrasena, 30, stdin);
 	strtok(contrasena, "\n");
 	int comprobacion = comprobarCredencialesP(email, contrasena);
-	//printf("%d\n", comprobacion);
+	printf("%d\n", comprobacion);
 	if(comprobacion == -2 || comprobacion == -1){
 		printf("Email no encontrado \n");
 		printf("Volviendo a menu...\n");
@@ -192,7 +192,7 @@ void registrarUsuario(){
 
 	do{
 		res = agregarProveedor(nombre,email,rfc,contrasena); // Comprueba que se ejecute correctamente
-		//printf("%d \n", res);
+		printf("%d \n", res);
 	}while(res < 0);	
 	printf("\nRegistro existoso!");
 	
@@ -211,7 +211,7 @@ void main(){
 		switch(op){
 			case 1: //iniciar sesion
 				iniciarSesion();
-				system("clear");
+				sleep(2);
 				break;
 			case 2: //Registrar nuevo usuario
 				registrarUsuario();
