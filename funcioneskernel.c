@@ -761,25 +761,3 @@ int pagarCarrito(char *email){
         }        
     }
 }
-
-/* Funcion temporal */
-void listado()
-{
-    FILE *catalogo;
-    catalogo=fopen("catalogo.bin","rb");
-    if (catalogo==NULL)
-        exit(1);
-    PRODUCTO producto;
-    fread(&producto, sizeof(PRODUCTO), 1, catalogo);
-    while(!feof(catalogo))
-    {
-        printf("Producto: %s\n", producto.nombre_producto);
-        printf("Precio: %0.2f\n", producto.precio);
-        printf("ID: %d\n", producto.id_producto);
-        printf("Articulos existentes: %d\n \n \n", producto.cantidad);
-
-        fread(&producto, sizeof(PRODUCTO), 1, catalogo);
-    }
-    fclose(catalogo);
-
-}
