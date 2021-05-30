@@ -4,6 +4,58 @@
 # include <stdlib.h>
 # include "funcioneskernel.c"
 
+void mostrarProductos(){
+	PRODUCTO productos[100];
+	int n_productos = obtenerProductos(productos);
+	printf("Mostrando lista de productos...\n");
+	printf("ID   |                 Nombre                |   Cantidad disp.  |  Precio/U |\n");
+	
+	for(int i = 0; i < n_productos ; i++){
+		// impresion del id
+		if(productos[i].id_producto > 99){					
+			printf(" %d |", productos[i].id_producto);
+		} 
+		else if(productos[i].id_producto > 9){					
+			printf(" %d  |", productos[i].id_producto);
+		} 
+		else{
+			printf(" %d   |", productos[i].id_producto);
+		}
+		
+		// impresion del nombre
+		printf(" %s", productos[i].nombre_producto);
+		for(int o = 0; o < 38 - obtenerTam(productos[i].nombre_producto); o++){
+			printf(" ");
+		}
+		printf("|");
+		
+		// Impresion de la cantidad 
+		if(productos[i].cantidad > 99){					
+			printf(" %d               |", productos[i].cantidad);
+		}
+		else if(productos[i].cantidad > 9){					
+			printf(" %d                |", productos[i].cantidad);
+		} 
+		else{
+			printf(" %d                 |", productos[i].cantidad);
+		}
+
+		// Impresion del precio unitario 
+		if(productos[i].precio > 99){					
+			printf(" %0.2f    |", productos[i].precio);
+		}
+		else if(productos[i].precio > 9){					
+			printf(" %0.2f     |", productos[i].precio);
+		}  
+		else{
+			printf(" %0.2f      |", productos[i].precio);
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
+
+
 void agregarCantidadArticulo(){
 	int id; 
 	int resultado_operacion;
@@ -118,8 +170,7 @@ void menu(){
 			break;
 		
 		case 4:; //Ver articulos
-			//mostrarProductos();
-			listado();
+			mostrarProductos();
 			sleep(4);
 			break;
 		}

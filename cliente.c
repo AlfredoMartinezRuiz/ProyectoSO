@@ -7,43 +7,55 @@
 
 void mostrarProductos(){
 	PRODUCTO productos[100];
-	obtenerProductos(productos);
+	int n_productos = obtenerProductos(productos);
 	printf("Mostrando lista de productos...\n");
 	printf("ID   |                 Nombre                |   Cantidad disp.  |  Precio/U |\n");
 	
-	for(int i = 0; productos[i].cantidad != 0 ; i++){
-		// impresion del id
-		if(productos[i].id_producto > 9){					
-			printf(" %d  |", productos[i].id_producto);
-		} 
-		else{
-			printf(" %d   |", productos[i].id_producto);
-		}
-		
-		// impresion del nombre
-		printf(" %s", productos[i].nombre_producto);
-		for(int o = 0; o < 38 - obtenerTam(productos[i].nombre_producto); o++){
-			printf(" ");
-		}
-		printf("|");
-		
-		// Impresion de la cantidad 
-		if(productos[i].cantidad > 9){					
-			printf(" %d                |", productos[i].cantidad);
-		} 
-		else{
-			printf(" %d                 |", productos[i].cantidad);
-		}
+	for(int i = 0; i < n_productos ; i++){
+		if(productos[i].cantidad > 0){
+			// impresion del id
+			if(productos[i].id_producto > 99){					
+				printf(" %d |", productos[i].id_producto);
+			} 
+			else if(productos[i].id_producto > 9){					
+				printf(" %d  |", productos[i].id_producto);
+			} 
+			else{
+				printf(" %d   |", productos[i].id_producto);
+			}
+			
+			// impresion del nombre
+			printf(" %s", productos[i].nombre_producto);
+			for(int o = 0; o < 38 - obtenerTam(productos[i].nombre_producto); o++){
+				printf(" ");
+			}
+			printf("|");
+			
+			// Impresion de la cantidad 
+			if(productos[i].cantidad > 99){					
+				printf(" %d               |", productos[i].cantidad);
+			}
+			else if(productos[i].cantidad > 9){					
+				printf(" %d                |", productos[i].cantidad);
+			} 
+			else{
+				printf(" %d                 |", productos[i].cantidad);
+			}
 
-		// Impresion del precio unitario 
-		if(productos[i].precio > 9){					
-			printf(" %0.2f     |", productos[i].precio);
-		}  
-		else{
-			printf(" %0.2f      |", productos[i].precio);
-		}
-		printf("\n");
+			// Impresion del precio unitario 
+			if(productos[i].precio > 99){					
+				printf(" %0.2f    |", productos[i].precio);
+			}
+			else if(productos[i].precio > 9){					
+				printf(" %0.2f     |", productos[i].precio);
+			}  
+			else{
+				printf(" %0.2f      |", productos[i].precio);
+			}
+			printf("\n");
+		}				
 	}
+	printf("\n");
 }
 
 void iniciarSesion(){
@@ -90,7 +102,7 @@ void iniciarSesion(){
 			int id;
 			switch (op){ 
 			case 1:;	// Mostrar todos los productos
-				listado();
+				mostrarProductos();
 				sleep(2);
 				//printf("Presione una tecla para continuar\n\n");
 				//getc(stdin);
@@ -98,7 +110,7 @@ void iniciarSesion(){
 
 			case 2: ; // Agregar articulo a carrito
 				int cantidad;
-				listado();
+				mostrarProductos();
 				printf("Ingresa el ID del articulo\n");
 				scanf("%d", &id);
 				printf("Ingresa la cantidad del articulo\n");
@@ -184,7 +196,6 @@ void main(){
 		switch(op){
 			case 1: //Muestra todos los productos
 				mostrarProductos();
-				//listado();
 				//printf("Presione una tecla para continuar\n\n");
 				//getc(stdin);
 				break;

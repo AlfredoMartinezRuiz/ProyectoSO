@@ -361,17 +361,18 @@ int obtenerProductos(PRODUCTO *p){
         FILE *catalogo = fopen("catalogo.bin", "rb");
         
         fread(&prod, sizeof(PRODUCTO), 1, catalogo);
-        
+        int n_productos = 0;
         while(!feof(catalogo)){ // Recorremos cada estructura del archivo
             (*p).id_producto = prod.id_producto;
             (*p).cantidad = prod.cantidad;
-            (*p).cantidad = prod.precio;
+            (*p).precio = prod.precio;
             strcpy((*p).nombre_producto, prod.nombre_producto);
             p++;
+            n_productos++;
             fread(&prod, sizeof(PRODUCTO), 1, catalogo);
         }
         fclose(catalogo);        
-        return -3; // ID no encontrado      
+        return n_productos;    
     }
 }
 /* Para conocer el numero de caracteres en una cadena */
