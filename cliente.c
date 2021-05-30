@@ -6,57 +6,75 @@
 
 
 void mostrarProductos(){
-	PRODUCTO productos[100];
-	int n_productos = obtenerProductos(productos);
+
+	FILE *catalogo;
+    catalogo=fopen("catalogo.bin","rb");
+    if (catalogo==NULL){
+        printf("No hay articulos disponibles \n\n\n");
+        printf("Volviendo a menu...\n");
+        sleep(2);
+        system("clear");
+    }
+    else{
+    	key_t llave_cat = ftok("/tmp", 1);
+		int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
+	//PRODUCTO productos[100];
+//	int n_productos = obtenerProductos(productos);
+    PRODUCTO productos;
 	printf("Mostrando lista de productos...\n");
 	printf("ID   |                 Nombre                |   Cantidad disp.  |  Precio/U |\n");
-	
-	for(int i = 0; i < n_productos ; i++){
-		if(productos[i].cantidad > 0){
+	fread(&productos, sizeof(PRODUCTO), 1, catalogo);
+	while(!feof(catalogo)){
+		//if(productos.cantidad > 0){
 			// impresion del id
-			if(productos[i].id_producto > 99){					
-				printf(" %d |", productos[i].id_producto);
+			if(productos.id_producto > 99){					
+				printf(" %d |", productos.id_producto);
 			} 
-			else if(productos[i].id_producto > 9){					
-				printf(" %d  |", productos[i].id_producto);
+			else if(productos.id_producto > 9){					
+				printf(" %d  |", productos.id_producto);
 			} 
 			else{
-				printf(" %d   |", productos[i].id_producto);
+				printf(" %d   |", productos.id_producto);
 			}
 			
 			// impresion del nombre
-			printf(" %s", productos[i].nombre_producto);
-			for(int o = 0; o < 38 - obtenerTam(productos[i].nombre_producto); o++){
+			printf(" %s", productos.nombre_producto);
+			for(int o = 0; o < 38 - obtenerTam(productos.nombre_producto); o++){
 				printf(" ");
 			}
 			printf("|");
 			
 			// Impresion de la cantidad 
-			if(productos[i].cantidad > 99){					
-				printf(" %d               |", productos[i].cantidad);
+			if(productos.cantidad > 99){					
+				printf(" %d               |", productos.cantidad);
 			}
-			else if(productos[i].cantidad > 9){					
-				printf(" %d                |", productos[i].cantidad);
+			else if(productos.cantidad > 9){					
+				printf(" %d                |", productos.cantidad);
 			} 
 			else{
-				printf(" %d                 |", productos[i].cantidad);
+				printf(" %d                 |", productos.cantidad);
 			}
 
 			// Impresion del precio unitario 
-			if(productos[i].precio > 99){					
-				printf(" %0.2f    |", productos[i].precio);
+			if(productos.precio > 99){					
+				printf(" %0.2f    |", productos.precio);
 			}
-			else if(productos[i].precio > 9){					
-				printf(" %0.2f     |", productos[i].precio);
+			else if(productos.precio > 9){					
+				printf(" %0.2f     |", productos.precio);
 			}  
 			else{
-				printf(" %0.2f      |", productos[i].precio);
+				printf(" %0.2f      |", productos.precio);
 			}
 			printf("\n");
-		}				
+		//}	
+		fread(&productos, sizeof(PRODUCTO), 1, catalogo);			
 	}
+	semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
+	fclose(catalogo);
 	printf("\n");
+	}
 }
+
 
 void iniciarSesion(){
 	int op;
@@ -95,7 +113,7 @@ void iniciarSesion(){
 			printf("3. Ver carrito.\n");
 			printf("4. Pagar carrito.\n");
 			printf("5. Salir.\n");
-			
+			fflush(stdin);
 			scanf("%d", &op);
 
 			int resultado_operacion = 0;
@@ -104,13 +122,12 @@ void iniciarSesion(){
 			case 1:;	// Mostrar todos los productos
 				mostrarProductos();
 				sleep(2);
-				//printf("Presione una tecla para continuar\n\n");
-				//getc(stdin);
 				break;
 
 			case 2: ; // Agregar articulo a carrito
 				int cantidad;
 				mostrarProductos();
+				fflush(stdin);
 				printf("Ingresa el ID del articulo\n");
 				scanf("%d", &id);
 				printf("Ingresa la cantidad del articulo\n");
@@ -118,33 +135,89 @@ void iniciarSesion(){
 
 				do{
 					resultado_operacion = agregarACarrito(email, id, cantidad); // Comprobemos que no haya ningun error en la operacion
-					if(resultado_operacion == -5)
-						printf("Error: Producto no encontrado, o no hay stock\n");				
-					if(resultado_operacion < 0)
-						printf("Codigo: %d\n", resultado_operacion);
-					sleep(1);
-				}while(resultado_operacion < 0 && resultado_operacion!=-5);
-				printf("Operacion exitosa!\n");
-				printf("Volviendo al menu...\n");
-				sleep(5);			
+					if(resultado_operacion == -1){
+						printf("Error: No existe el archivo carritos\n");			
+					}
+					else if(resultado_operacion == -2){
+						printf("Por favor espere\n"); //Archivo carritos.bin ocupado
+					}
+					else if(resultado_operacion == -5){
+						printf("Error: Producto no encontrado, o no hay stock\n");
+					}
+					else if(resultado_operacion == -10){
+						printf("Error: Email no encontrado\n");
+					}
+					else if(resultado_operacion == 0){
+						printf("Operacion exitosa!\n");
+						printf("Volviendo al menu...\n");
+					}
+					else{
+						printf("Error fatal\n");//Error no registrado
+					}
+					//sleep(1);
+					}while(resultado_operacion < 0 && resultado_operacion!=-5);
+
+				//sleep(1);			
 				break;
 
 			case 3:; // Ver el carrito completo
 				system("clear");
 				CARRITO car;
 				fflush(stdout);
-				obtenerCarrito(email, &car);
-				printf("Productos: \n");
-				for(int i = 0; i < car.n_productos; i++){
+				resultado_operacion = obtenerCarrito(email, &car);
+
+				do{
+
+				if(resultado_operacion == -1){
+					printf("Error: No existe el archivo carritos\n");
+					}
+				else if(resultado_operacion == -2){
+					printf("Error: Carrito no encontrado\n");
+					}
+				else if(resultado_operacion == 0){
+					printf("Productos: \n");
+					for(int i = 0; i < car.n_productos; i++){
 					printf("	Nombre: %s \n", car.productos[i].nombre_producto);
 					printf("	Precio: %0.2f \n", car.productos[i].precio);
 					printf("	Cantidad: %d \n", car.productos[i].cantidad);
 					printf("--------------------------------------------------------------- \n");
 				}
 				printf("Precio final con IVA: %0.2f \n", car.precio_total);
-				sleep(5);
+				}
+				else{
+					printf("Error fatal\n");//Error no registrado
+					}
+				}while(resultado_operacion < 0);
+
+				sleep(2);
 				break;
+
+
 			case 4:; // Pagar carrito
+				fflush(stdin);
+
+				resultado_operacion = pagarCarrito(email);
+
+				do{
+				if(resultado_operacion == -1){
+					printf("Error: No existe el archivo carritos\n");
+					}
+				else if(resultado_operacion == -2){
+					printf("Por favor, espere\n");//Archivo carritos.bin ocupado
+					}
+				else if(resultado_operacion == -5){
+					printf("Error: Email no encontrado\n");
+					}
+				else if(resultado_operacion == 0){
+					printf("Operacion exitosa!\n");
+					printf("Volviendo al menu...\n");
+				}
+				else{
+					printf("Error fatal\n");//Error no registrado
+					}
+				}while(resultado_operacion < 0);
+
+				sleep(2);
 				break;
 			}
 		}while (op != 5);
@@ -152,7 +225,6 @@ void iniciarSesion(){
 }
 
 void registrarUsuario(){
-	//agregarCliente(1, "Juan Pablo II", "Juanpablo@gmail.com", "Lola");
 	int op,res;
 	char *email = (char*)malloc(sizeof(char)*30);
 	char *contrasena = (char*)malloc(sizeof(char)*30);
@@ -177,9 +249,8 @@ void registrarUsuario(){
 
 	do{
 		res = agregarCliente(nombre,email,contrasena); // Comprueba que se ejecute correctamente
-		//printf("%d \n", res);
 	}while(res < 0);	
-	printf("Registro existoso!");
+	printf("Registro existoso!\n\n");
 }
 
 void main(){
@@ -196,8 +267,6 @@ void main(){
 		switch(op){
 			case 1: //Muestra todos los productos
 				mostrarProductos();
-				//printf("Presione una tecla para continuar\n\n");
-				//getc(stdin);
 				break;
 			case 2: //iniciar sesion
 				iniciarSesion();
@@ -205,7 +274,7 @@ void main(){
 				break;
 			case 3: //Registrar nuevo usuario
 				registrarUsuario();
-				sleep(3);
+				//sleep(1);
 				break;
 		}
 		
