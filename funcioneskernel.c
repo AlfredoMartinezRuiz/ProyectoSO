@@ -361,28 +361,17 @@ int obtenerProductos(PRODUCTO *p){
         FILE *catalogo = fopen("catalogo.bin", "rb");
         
         fread(&prod, sizeof(PRODUCTO), 1, catalogo);
-        int n_productos = 0;
+        
         while(!feof(catalogo)){ // Recorremos cada estructura del archivo
             (*p).id_producto = prod.id_producto;
             (*p).cantidad = prod.cantidad;
-            (*p).precio = prod.precio;
-            strcpy((*p).nombre_producto, prod.nombre_producto);
+            (*p).cantidad = prod.precio;
             p++;
-            n_productos++;
             fread(&prod, sizeof(PRODUCTO), 1, catalogo);
         }
         fclose(catalogo);        
-        return n_productos;    
+        return -3; // ID no encontrado      
     }
-}
-/* Para conocer el numero de caracteres en una cadena */
-int obtenerTam(char *cad){
-    char aux[400];
-    strcpy(aux, cad);
-    int contador;
-    for(contador=0; aux[contador]!='\0'; contador++);
-    
-    return contador;
 }
 
 /* Obtenemos algun id disponible para un nuevo cliente */
@@ -548,7 +537,7 @@ int agregarProveedor(char *nombre, char *email,  char *rfc,  char *contrasena){ 
             strcpy(pro.contrasena, contrasena);
                                    
             FILE *proveedores = fopen("proveedores.bin", "a+b");
-            printf("%d %s %s %s %s", pro.id_proveedor,pro.nombre, pro.email, pro.RFC, pro.contrasena);
+        //   printf("ID proveedor: %d\n Nombre: %s\n Email: %s\n RFC: %s\n Contraseña: %s\n", pro.id_proveedor,pro.nombre, pro.email, pro.RFC, pro.contrasena);
             fwrite(&pro, sizeof(PROVEEDOR), 1, proveedores);
 
             fclose(proveedores);
@@ -733,8 +722,9 @@ int pagarCarrito(char *email){
             strcpy(car.email, email);
             car.n_productos = 0;
             
-            FILE *carritos = fopen("carritos.bin", "ab");
-            fwrite(&car, sizeof(CARRITO), 1, carritos);
+            FILE *carritos = fopen("carritos.bin", "r+b");
+            fread(&car, sizeof(CARRITO), 1, carritos);
+
              while(!feof(carritos)){
                 if(strcmp(car.email, email) == 0){ // checamos que exista el correo
                     // Eliminamos productos
@@ -746,11 +736,16 @@ int pagarCarrito(char *email){
                     car.n_productos = 0;
                     car.precio_total = 0;
 
+                int pos = ftell(carritos) - sizeof(CARRITO); //actualiza el puntero
+                fseek(carritos, pos, SEEK_SET);
+                fwrite(&car, sizeof(CARRITO), 1, carritos); //escribimos la estructura modificada
+
                     fclose(carritos);      
                     semctl(semcar, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
                     return 0;
                 }
                 fread(&car, sizeof(CARRITO), 1, carritos);
+                 
             }
             fclose(carritos);      
             semctl(semcar, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
@@ -760,4 +755,15 @@ int pagarCarrito(char *email){
             return -2; // error, carritos ocupado
         }        
     }
+}
+
+
+/* Para conocer el numero de caracteres en una cadena */
+int obtenerTam(char *cad){
+    char aux[400];
+    strcpy(aux, cad);
+    int contador;
+    for(contador=0; aux[contador]!='\0'; contador++);
+    
+    return contador;
 }

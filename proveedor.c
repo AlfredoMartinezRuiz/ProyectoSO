@@ -4,57 +4,76 @@
 # include <stdlib.h>
 # include "funcioneskernel.c"
 
+
 void mostrarProductos(){
-	PRODUCTO productos[100];
-	int n_productos = obtenerProductos(productos);
+
+	FILE *catalogo;
+    catalogo=fopen("catalogo.bin","rb");
+    if (catalogo==NULL){
+        printf("No hay articulos disponibles \n\n\n");
+        printf("Volviendo a menu...\n");
+        sleep(2);
+        system("clear");
+    }
+    else{
+    	key_t llave_cat = ftok("/tmp", 1);
+		int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
+	//PRODUCTO productos[100];
+//	int n_productos = obtenerProductos(productos);
+    PRODUCTO productos;
 	printf("Mostrando lista de productos...\n");
 	printf("ID   |                 Nombre                |   Cantidad disp.  |  Precio/U |\n");
-	
-	for(int i = 0; i < n_productos ; i++){
-		// impresion del id
-		if(productos[i].id_producto > 99){					
-			printf(" %d |", productos[i].id_producto);
-		} 
-		else if(productos[i].id_producto > 9){					
-			printf(" %d  |", productos[i].id_producto);
-		} 
-		else{
-			printf(" %d   |", productos[i].id_producto);
-		}
-		
-		// impresion del nombre
-		printf(" %s", productos[i].nombre_producto);
-		for(int o = 0; o < 38 - obtenerTam(productos[i].nombre_producto); o++){
-			printf(" ");
-		}
-		printf("|");
-		
-		// Impresion de la cantidad 
-		if(productos[i].cantidad > 99){					
-			printf(" %d               |", productos[i].cantidad);
-		}
-		else if(productos[i].cantidad > 9){					
-			printf(" %d                |", productos[i].cantidad);
-		} 
-		else{
-			printf(" %d                 |", productos[i].cantidad);
-		}
+	fread(&productos, sizeof(PRODUCTO), 1, catalogo);
+	while(!feof(catalogo)){
+		//if(productos.cantidad > 0){
+			// impresion del id
+			if(productos.id_producto > 99){					
+				printf(" %d |", productos.id_producto);
+			} 
+			else if(productos.id_producto > 9){					
+				printf(" %d  |", productos.id_producto);
+			} 
+			else{
+				printf(" %d   |", productos.id_producto);
+			}
+			
+			// impresion del nombre
+			printf(" %s", productos.nombre_producto);
+			for(int o = 0; o < 38 - obtenerTam(productos.nombre_producto); o++){
+				printf(" ");
+			}
+			printf("|");
+			
+			// Impresion de la cantidad 
+			if(productos.cantidad > 99){					
+				printf(" %d               |", productos.cantidad);
+			}
+			else if(productos.cantidad > 9){					
+				printf(" %d                |", productos.cantidad);
+			} 
+			else{
+				printf(" %d                 |", productos.cantidad);
+			}
 
-		// Impresion del precio unitario 
-		if(productos[i].precio > 99){					
-			printf(" %0.2f    |", productos[i].precio);
-		}
-		else if(productos[i].precio > 9){					
-			printf(" %0.2f     |", productos[i].precio);
-		}  
-		else{
-			printf(" %0.2f      |", productos[i].precio);
-		}
-		printf("\n");
+			// Impresion del precio unitario 
+			if(productos.precio > 99){					
+				printf(" %0.2f    |", productos.precio);
+			}
+			else if(productos.precio > 9){					
+				printf(" %0.2f     |", productos.precio);
+			}  
+			else{
+				printf(" %0.2f      |", productos.precio);
+			}
+			printf("\n");
+		//}	
+		fread(&productos, sizeof(PRODUCTO), 1, catalogo);			
 	}
+	semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
+	fclose(catalogo);
 	printf("\n");
+	}
 }
-
 
 void agregarCantidadArticulo(){
 	int id; 
@@ -76,11 +95,11 @@ void agregarCantidadArticulo(){
 		if(resultado_operacion == -3){
 			printf("Error: Producto no encontrado, intente de nuevo\n");
 		}
-		sleep(1);
+		//sleep(1);
 	}while(resultado_operacion < 0);
 	printf("Operacion exitosa!\n");
 	printf("Volviendo al menu...\n");
-	sleep(1);			
+//	sleep(1);			
 }
 
 void agregarNuevoArticulo(){
@@ -155,7 +174,6 @@ void menu(){
 		printf("5. Salir.\n");
 		scanf("%d", &op);
 		
-		
 		switch (op){ 
 		case 1:	// Agregar cantidad de artículos
 			agregarCantidadArticulo();
@@ -171,7 +189,8 @@ void menu(){
 		
 		case 4:; //Ver articulos
 			mostrarProductos();
-			sleep(4);
+			//listado();
+			sleep(2);
 			break;
 		}
 	}while (op != 5);
@@ -200,12 +219,12 @@ void iniciarSesion(){
 	if(comprobacion == -2 || comprobacion == -1){
 		printf("Email no encontrado \n");
 		printf("Volviendo a menu...\n");
-		sleep(2);
+		//sleep(1);
 	}
 	else if(comprobacion == -3){
 		printf("Contraseña incorrecta \n");
 		printf("Volviendo a menu...\n");
-		sleep(2);
+		//sleep(1);
 	}
 	else{
 		menu();
@@ -243,9 +262,22 @@ void registrarUsuario(){
 
 	do{
 		res = agregarProveedor(nombre,email,rfc,contrasena); // Comprueba que se ejecute correctamente
-		printf("%d \n", res);
+		if(res == -1){
+			printf("El archivo proveedores no existe\n");
+		}
+		else{
+			printf("Archivo proveedores existente\n");
+			if(res == -2){
+				printf("Por favor espere\n");//Archivo proveedores.bin ocupado
+				}
+			else if(res == 0){
+				printf("\nRegistro existoso!");
+				}
+			else{
+				printf("Error fatal\n");//Error no registrado
+				}
+			}
 	}while(res < 0);	
-	printf("\nRegistro existoso!");
 	
 }
 
@@ -262,12 +294,12 @@ void main(){
 		switch(op){
 			case 1: //iniciar sesion
 				iniciarSesion();
-				sleep(2);
+				//sleep(1);
 				break;
 			case 2: //Registrar nuevo usuario
 				registrarUsuario();
-				sleep(3);
-				break;
+				//sleep(1);
+				break;	
 		}
 		
 	}while(op != 3);
