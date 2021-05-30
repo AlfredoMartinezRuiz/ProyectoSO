@@ -6,10 +6,11 @@
 
 
 void mostrarProductos(){
-	PRODUCTO productos[100]; 
+	PRODUCTO productos[100];
 	obtenerProductos(productos);
 	printf("Mostrando lista de productos...\n");
-	printf("ID   |                 Nombre                |   Cantidad disp.  |  Precio/U \n");
+	printf("ID   |                 Nombre                |   Cantidad disp.  |  Precio/U |\n");
+	
 	for(int i = 0; productos[i].cantidad != 0 ; i++){
 		// impresion del id
 		if(productos[i].id_producto > 9){					
@@ -18,26 +19,28 @@ void mostrarProductos(){
 		else{
 			printf(" %d   |", productos[i].id_producto);
 		}
+		
 		// impresion del nombre
 		printf(" %s", productos[i].nombre_producto);
-		for(int o = 0; o < 30 - sizeof(productos[i].nombre_producto); o++){
+		for(int o = 0; o < 38 - obtenerTam(productos[i].nombre_producto); o++){
 			printf(" ");
 		}
 		printf("|");
+		
 		// Impresion de la cantidad 
 		if(productos[i].cantidad > 9){					
-			printf(" %d               |", productos[i].cantidad);
+			printf(" %d                |", productos[i].cantidad);
 		} 
 		else{
-			printf(" %d                |", productos[i].cantidad);
+			printf(" %d                 |", productos[i].cantidad);
 		}
 
 		// Impresion del precio unitario 
 		if(productos[i].precio > 9){					
-			printf(" %f               |", productos[i].precio);
-		} 
+			printf(" %0.2f     |", productos[i].precio);
+		}  
 		else{
-			printf(" %f                |", productos[i].precio);
+			printf(" %0.2f      |", productos[i].precio);
 		}
 		printf("\n");
 	}
@@ -178,8 +181,8 @@ void main(){
 
 		switch(op){
 			case 1: //Muestra todos los productos
-			//	mostrarProductos();
-				listado();
+				mostrarProductos();
+				//listado();
 				//printf("Presione una tecla para continuar\n\n");
 				//getc(stdin);
 				break;

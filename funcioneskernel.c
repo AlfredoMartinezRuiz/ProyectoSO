@@ -363,12 +363,22 @@ int obtenerProductos(PRODUCTO *p){
             (*p).id_producto = prod.id_producto;
             (*p).cantidad = prod.cantidad;
             (*p).cantidad = prod.precio;
+            strcpy((*p).nombre_producto, prod.nombre_producto);
             p++;
             fread(&prod, sizeof(PRODUCTO), 1, catalogo);
         }
         fclose(catalogo);        
         return -3; // ID no encontrado      
     }
+}
+/* Para conocer el numero de caracteres en una cadena */
+int obtenerTam(char *cad){
+    char aux[400];
+    strcpy(aux, cad);
+    int contador;
+    for(contador=0; aux[contador]!='\0'; contador++);
+    
+    return contador;
 }
 
 /* Obtenemos algun id disponible para un nuevo cliente */
