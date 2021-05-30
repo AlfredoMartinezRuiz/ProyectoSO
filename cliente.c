@@ -83,6 +83,7 @@ void iniciarSesion(){
 			printf("3. Ver carrito.\n");
 			printf("4. Pagar carrito.\n");
 			printf("5. Salir.\n");
+			
 			scanf("%d", &op);
 
 			int resultado_operacion = 0;
@@ -90,6 +91,7 @@ void iniciarSesion(){
 			switch (op){ 
 			case 1:;	// Mostrar todos los productos
 				listado();
+				sleep(2);
 				//printf("Presione una tecla para continuar\n\n");
 				//getc(stdin);
 				break;
@@ -105,9 +107,9 @@ void iniciarSesion(){
 				do{
 					resultado_operacion = agregarACarrito(email, id, cantidad); // Comprobemos que no haya ningun error en la operacion
 					if(resultado_operacion == -5)
-						printf("Error: Producto no encontrado, o no hay stock \n");					
+						printf("Error: Producto no encontrado, o no hay stock\n");				
 					if(resultado_operacion < 0)
-						printf("Co0digo: %d\n", resultado_operacion);
+						printf("Codigo: %d\n", resultado_operacion);
 					sleep(1);
 				}while(resultado_operacion < 0 && resultado_operacion!=-5);
 				printf("Operacion exitosa!\n");
@@ -192,6 +194,7 @@ void main(){
 				break;
 			case 3: //Registrar nuevo usuario
 				registrarUsuario();
+				sleep(3);
 				break;
 		}
 		
