@@ -25,7 +25,7 @@ void mostrarProductos(){
 	printf("ID   |                 Nombre                |   Cantidad disp.  |  Precio/U |\n");
 	fread(&productos, sizeof(PRODUCTO), 1, catalogo);
 	while(!feof(catalogo)){
-		//if(productos.cantidad > 0){
+		if(productos.cantidad > 0){
 			// impresion del id
 			if(productos.id_producto > 99){					
 				printf(" %d |", productos.id_producto);
@@ -66,7 +66,7 @@ void mostrarProductos(){
 				printf(" %0.2f      |", productos.precio);
 			}
 			printf("\n");
-		//}	
+		}	
 		fread(&productos, sizeof(PRODUCTO), 1, catalogo);			
 	}
 	semctl(semcat, 0, SETVAL, 1); // asignamos a 1 para decir que ya no está ocupado
@@ -157,7 +157,7 @@ void iniciarSesion(){
 					//sleep(1);
 					}while(resultado_operacion < 0 && resultado_operacion!=-5);
 
-				//sleep(1);			
+				sleep(1);			
 				break;
 
 			case 3:; // Ver el carrito completo
@@ -168,25 +168,25 @@ void iniciarSesion(){
 
 				do{
 
-				if(resultado_operacion == -1){
-					printf("Error: No existe el archivo carritos\n");
+					if(resultado_operacion == -1){
+						printf("Error: No existe el archivo carritos\n");
+						}
+					else if(resultado_operacion == -2){
+						printf("Error: Carrito no encontrado\n");
+						}
+					else if(resultado_operacion == 0){
+						printf("Productos: \n");
+						for(int i = 0; i < car.n_productos; i++){
+						printf("	Nombre: %s \n", car.productos[i].nombre_producto);
+						printf("	Precio: %0.2f \n", car.productos[i].precio);
+						printf("	Cantidad: %d \n", car.productos[i].cantidad);
+						printf("--------------------------------------------------------------- \n");
 					}
-				else if(resultado_operacion == -2){
-					printf("Error: Carrito no encontrado\n");
+					printf("Precio final con IVA: %0.2f \n", car.precio_total);
 					}
-				else if(resultado_operacion == 0){
-					printf("Productos: \n");
-					for(int i = 0; i < car.n_productos; i++){
-					printf("	Nombre: %s \n", car.productos[i].nombre_producto);
-					printf("	Precio: %0.2f \n", car.productos[i].precio);
-					printf("	Cantidad: %d \n", car.productos[i].cantidad);
-					printf("--------------------------------------------------------------- \n");
-				}
-				printf("Precio final con IVA: %0.2f \n", car.precio_total);
-				}
-				else{
-					printf("Error fatal\n");//Error no registrado
-					}
+					else{
+						printf("Error fatal\n");//Error no registrado
+						}
 				}while(resultado_operacion < 0);
 
 				sleep(2);
@@ -199,22 +199,22 @@ void iniciarSesion(){
 				resultado_operacion = pagarCarrito(email);
 
 				do{
-				if(resultado_operacion == -1){
-					printf("Error: No existe el archivo carritos\n");
+					if(resultado_operacion == -1){
+						printf("Error: No existe el archivo carritos\n");
+						}
+					else if(resultado_operacion == -2){
+						printf("Por favor, espere\n");//Archivo carritos.bin ocupado
+						}
+					else if(resultado_operacion == -5){
+						printf("Error: Email no encontrado\n");
+						}
+					else if(resultado_operacion == 0){
+						printf("Operacion exitosa!\n");
+						printf("Volviendo al menu...\n");
 					}
-				else if(resultado_operacion == -2){
-					printf("Por favor, espere\n");//Archivo carritos.bin ocupado
-					}
-				else if(resultado_operacion == -5){
-					printf("Error: Email no encontrado\n");
-					}
-				else if(resultado_operacion == 0){
-					printf("Operacion exitosa!\n");
-					printf("Volviendo al menu...\n");
-				}
-				else{
-					printf("Error fatal\n");//Error no registrado
-					}
+					else{
+						printf("Error fatal\n");//Error no registrado
+						}
 				}while(resultado_operacion < 0);
 
 				sleep(2);

@@ -155,7 +155,7 @@ void buscarArticuloPorNombre(){
 			
 		}
 		//printf("%d \n", resultado_operacion);
-	}while(resultado_operacion < 0);
+	}while(resultado_operacion == -1);
 	printf("Presione una tecla para volver al menu\n");
 	getchar();
 }
