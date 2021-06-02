@@ -720,7 +720,6 @@ int pagarCarrito(char *email){
             /* Creamos un carrito*/
             CARRITO car;
             strcpy(car.email, email);
-            car.n_productos = 0;
             
             FILE *carritos = fopen("carritos.bin", "r+b");
             fread(&car, sizeof(CARRITO), 1, carritos);

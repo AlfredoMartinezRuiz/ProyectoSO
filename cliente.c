@@ -18,8 +18,7 @@ void mostrarProductos(){
     else{
     	key_t llave_cat = ftok("/tmp", 1);
 		int semcat = semget(llave_cat, 1, IPC_CREAT|PERMISOS);
-	//PRODUCTO productos[100];
-//	int n_productos = obtenerProductos(productos);
+
     PRODUCTO productos;
 	printf("Mostrando lista de productos...\n");
 	printf("ID   |                 Nombre                |   Cantidad disp.  |  Precio/U |\n");
@@ -119,9 +118,8 @@ void iniciarSesion(){
 			int resultado_operacion = 0;
 			int id;
 			switch (op){ 
-			case 1:;	// Mostrar todos los productos
+			case 1:	// Mostrar todos los productos
 				mostrarProductos();
-				sleep(2);
 				break;
 
 			case 2: ; // Agregar articulo a carrito
@@ -160,7 +158,7 @@ void iniciarSesion(){
 				//sleep(1);			
 				break;
 
-			case 3:; // Ver el carrito completo
+			case 3: // Ver el carrito completo
 				system("clear");
 				CARRITO car;
 				fflush(stdout);
@@ -193,7 +191,7 @@ void iniciarSesion(){
 				break;
 
 
-			case 4:; // Pagar carrito
+			case 4: // Pagar carrito
 				fflush(stdin);
 
 				resultado_operacion = pagarCarrito(email);
@@ -219,6 +217,13 @@ void iniciarSesion(){
 
 				sleep(2);
 				break;
+
+			case 5:
+				printf("Saliendo de su sesión\n");
+				break;
+
+			default:
+				printf("Opción inválida, eliga una opción válida, por favor\n");
 			}
 		}while (op != 5);
 	}
@@ -276,6 +281,12 @@ void main(){
 				registrarUsuario();
 				//sleep(1);
 				break;
+			case 4:;
+				printf("Gracias por su compra\n");
+				break;
+
+			default:
+				printf("Opción inválida, eliga una opción válida, por favor\n");
 		}
 		
 	}while(op != 4);

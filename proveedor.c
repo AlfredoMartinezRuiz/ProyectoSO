@@ -154,7 +154,6 @@ void buscarArticuloPorNombre(){
 			printf("ID de %s es: %d \n", nombre_buscar, resultado_operacion);
 			
 		}
-		//printf("%d \n", resultado_operacion);
 	}while(resultado_operacion < 0);
 	printf("Presione una tecla para volver al menu\n");
 	getchar();
@@ -179,19 +178,24 @@ void menu(){
 			agregarCantidadArticulo();
 			break;
 
-		case 2: ;// Agregar artículo nuevo
+		case 2: // Agregar artículo nuevo
 			agregarNuevoArticulo();
 			break;
 
-		case 3:; // Buscar articulo por nombre
+		case 3: // Buscar articulo por nombre
 			buscarArticuloPorNombre();
 			break;
 		
-		case 4:; //Ver articulos
+		case 4: //Ver articulos
 			mostrarProductos();
-			//listado();
 			sleep(2);
 			break;
+		case 5:
+			printf("Saliendo de su sesión\n");
+			break;
+
+			default:
+			printf("Opción inválida, eliga una opción válida, por favor\n");
 		}
 	}while (op != 5);
 	
@@ -299,7 +303,13 @@ void main(){
 			case 2: //Registrar nuevo usuario
 				registrarUsuario();
 				//sleep(1);
-				break;	
+				break;
+			case 3:
+				printf("Gracias, saliendo del programa\n");
+				break;
+
+			default:
+				printf("Opción inválida, eliga una opción válida, por favor\n");	
 		}
 		
 	}while(op != 3);
